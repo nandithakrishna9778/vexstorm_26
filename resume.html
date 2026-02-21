@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Checker — HirePanel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--cream:#F5F0E8;--cream-dark:#EDE7D9;--ink:#1A1714;--ink-light:#4A4540;--ink-faint:#9A9590;--rust:#C8472B;--rust-light:#E8C5BE;--rust-pale:#FBF1EF;--gold:#B8860B;--teal:#1D6B72;--teal-light:#D0EBED;--green:#1A6630;--green-pale:#D4EDDA;--border:#D8D2C8;--border-strong:#B8B0A4;--white:#FDFCFA}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
+.nav{position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(245,240,232,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 3rem;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nbname{font-family:'Playfair Display',serif;font-weight:900;font-size:1.35rem;letter-spacing:-0.02em}
+.nbbadge{font-family:'IBM Plex Mono',monospace;font-size:0.55rem;font-weight:600;color:var(--rust);background:var(--rust-pale);border:1px solid var(--rust-light);padding:0.1rem 0.38rem;border-radius:2px;text-transform:uppercase;letter-spacing:0.06em;margin-left:6px}
+.nav-links{display:flex;gap:4px;list-style:none}
+.nav-link{font-family:'IBM Plex Mono',monospace;font-size:0.67rem;font-weight:500;color:var(--ink-light);padding:0.38rem 0.8rem;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em;border:1px solid transparent;text-decoration:none}
+.nav-link:hover{background:var(--cream-dark)}
+.nav-link.active{color:var(--rust);background:var(--rust-pale);border-color:var(--rust-light)}
+.nav-cta{font-family:'IBM Plex Mono',monospace;font-size:0.67rem;font-weight:600;color:var(--white);background:var(--ink);padding:0.42rem 1rem;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em;border:none;cursor:pointer;margin-left:8px;text-decoration:none}
+.wrap{padding:80px 3rem 4rem}
+.page-header{padding:2rem 0 1.8rem;border-bottom:1px solid var(--border);margin-bottom:2.5rem;display:flex;justify-content:space-between;align-items:flex-end}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:0.62rem;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:var(--rust);margin-bottom:0.6rem;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:'';width:18px;height:1px;background:var(--rust);display:inline-block}
+h1{font-family:'Playfair Display',serif;font-weight:900;font-size:2.4rem;letter-spacing:-0.025em}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:1.5rem}
+.iblock{display:flex;flex-direction:column;gap:7px}
+.ilabel{font-family:'IBM Plex Mono',monospace;font-size:0.61rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light)}
+.ilabel em{font-style:normal;font-weight:400;color:var(--ink-faint);text-transform:none;letter-spacing:0;font-size:0.59rem}
+textarea{font-family:'IBM Plex Mono',monospace;font-size:0.76rem;background:var(--white);border:1px solid var(--border);color:var(--ink);padding:0.82rem 0.95rem;border-radius:4px;resize:vertical;line-height:1.65;width:100%;outline:none;transition:border-color 0.18s}
+textarea:focus{border-color:var(--ink)}
+textarea.filled{border-color:var(--teal)}
+textarea::placeholder{color:var(--ink-faint)}
+.ctr{font-family:'IBM Plex Mono',monospace;font-size:0.57rem;text-align:right;color:var(--ink-faint);margin-top:3px}
+.ctr.on{color:var(--teal)}
+.drop{background:var(--white);border:1.5px dashed var(--border-strong);border-radius:4px;padding:2rem;text-align:center;cursor:pointer;min-height:148px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;transition:all 0.2s}
+.drop:hover{border-color:var(--rust);background:var(--rust-pale)}
+.drop.ok{border-color:var(--teal)!important;background:var(--teal-light)!important}
+.drop-icon{font-size:1.7rem;opacity:0.4}
+.drop-title{font-weight:600;font-size:0.83rem}
+.drop-sub{font-family:'IBM Plex Mono',monospace;font-size:0.67rem;color:var(--ink-faint)}
+.run-bar{display:flex;align-items:center;gap:1rem;margin:1.5rem 0 1.8rem}
+.run-btn{font-family:'IBM Plex Mono',monospace;font-size:0.76rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;background:var(--ink);color:var(--white);border:none;padding:0.82rem 1.9rem;border-radius:4px;cursor:pointer;transition:all 0.2s}
+.run-btn:hover{background:var(--rust);box-shadow:0 4px 18px rgba(200,71,43,0.3)}
+.run-btn:disabled{opacity:0.45;pointer-events:none}
+.prog-wrap{flex:1;display:none;flex-direction:column;gap:5px}
+.prog-label{font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--rust);text-transform:uppercase;letter-spacing:0.07em}
+.prog-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--rust));border-radius:2px;width:0%;transition:width 0.5s ease}
+.errbox{background:#FDF2F0;border:1px solid #EEC5BC;border-radius:4px;padding:0.9rem 1.1rem;font-family:'IBM Plex Mono',monospace;font-size:0.71rem;color:var(--rust);display:none;margin-bottom:1rem;line-height:1.7}
+.results{display:none;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--white)}
+.results.show{display:block}
+.rtabs{display:flex;border-bottom:1px solid var(--border);background:var(--cream-dark)}
+.rtab{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;padding:0.82rem 1.4rem;color:var(--ink-faint);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all 0.18s}
+.rtab:hover{color:var(--ink)}
+.rtab.on{color:var(--rust);border-bottom-color:var(--rust);background:var(--white)}
+.rbody{padding:2rem}
+.ov-grid{display:grid;grid-template-columns:130px 1fr;gap:2.5rem;align-items:start;margin-bottom:1.8rem}
+.ring-wrap{position:relative;width:130px;height:130px}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-num{font-family:'Playfair Display',serif;font-weight:900;font-size:2.3rem;color:var(--ink);line-height:1}
+.ring-sub{font-family:'IBM Plex Mono',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-faint)}
+.sbar{display:grid;grid-template-columns:155px 1fr 34px;align-items:center;gap:12px;margin-bottom:10px}
+.sbl{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--ink-light)}
+.sbt{height:5px;background:var(--cream-dark);border-radius:3px;overflow:hidden}
+.sbf{height:100%;border-radius:3px}
+.sbv{font-family:'Playfair Display',serif;font-weight:700;font-size:0.84rem;text-align:right}
+.sumcard{background:var(--cream);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:1.1rem 1.4rem;font-size:0.81rem;color:var(--ink-light);line-height:1.75}
+.dcard{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:1.1rem;border-radius:4px;border:1px solid;align-items:flex-start;margin-bottom:10px}
+.dcard.crit{background:#FDF2F0;border-color:#EEC5BC}
+.dcard.warn{background:#FFFBF0;border-color:#E8D99A}
+.dcard.info{background:#EEF7F8;border-color:#B0DDE0}
+.dbadge{font-family:'IBM Plex Mono',monospace;font-size:0.57rem;font-weight:600;padding:0.17rem 0.45rem;border-radius:2px;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap}
+.dcard.crit .dbadge{background:var(--rust);color:#fff}
+.dcard.warn .dbadge{background:var(--gold);color:#fff}
+.dcard.info .dbadge{background:var(--teal);color:#fff}
+.dtitle{font-weight:600;font-size:0.81rem;margin-bottom:4px;color:var(--ink)}
+.dtext{font-size:0.77rem;color:var(--ink-light);line-height:1.65;font-weight:300}
+.tcard{background:var(--ink);border-radius:6px;overflow:hidden;margin-bottom:10px}
+.tchead{display:flex;align-items:center;gap:10px;padding:0.65rem 1rem;border-bottom:1px solid rgba(255,255,255,0.07)}
+.tcbadge{font-family:'IBM Plex Mono',monospace;font-size:0.57rem;font-weight:600;padding:0.15rem 0.42rem;border-radius:2px;text-transform:uppercase;letter-spacing:0.05em}
+.tc-r{background:rgba(29,107,114,0.35);color:#6ECCD3}
+.tc-t{background:rgba(200,71,43,0.35);color:#F4957F}
+.tc-g{background:rgba(184,134,11,0.35);color:#DCBA60}
+.tc-c{background:rgba(255,255,255,0.14);color:rgba(255,255,255,0.85)}
+.tctitle{font-family:'IBM Plex Mono',monospace;font-size:0.64rem;color:rgba(255,255,255,0.38)}
+.tcbody{padding:1rem;font-family:'IBM Plex Mono',monospace;font-size:0.69rem;color:rgba(255,255,255,0.6);line-height:1.7}
+.vwrap{text-align:center;padding:1rem 0 1.5rem}
+.vchip{display:inline-flex;align-items:center;gap:8px;font-family:'Playfair Display',serif;font-weight:900;font-size:1.9rem;padding:0.7rem 2.2rem;border-radius:6px;margin-bottom:0.7rem;letter-spacing:-0.02em}
+.vchip.hire{background:var(--green-pale);color:var(--green)}
+.vchip.cond{background:#F5EDD0;color:#7A5A00}
+.vchip.no{background:var(--rust-pale);color:var(--rust)}
+.vsub{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.8rem}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.vbox{background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:1.1rem;text-align:left}
+.vbox-title{font-family:'IBM Plex Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.vbox.str .vbox-title{color:var(--green)}
+.vbox.risk .vbox-title{color:var(--rust)}
+.vbox ul{list-style:none}
+.vbox li{display:flex;gap:7px;font-size:0.77rem;color:var(--ink-light);padding:0.2rem 0;border-bottom:1px solid var(--border);font-weight:300;line-height:1.55}
+.vbox li:last-child{border-bottom:none}
+.vbox.str li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+.vbox.risk li::before{content:'⚠';color:var(--rust);font-size:0.64rem;flex-shrink:0;margin-top:1px}
+.nsc{background:var(--ink);border-radius:6px;padding:1.4rem;text-align:left}
+.nsc-title{font-family:'IBM Plex Mono',monospace;font-size:0.57rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);margin-bottom:12px}
+.nsi{display:flex;align-items:flex-start;gap:12px;padding:0.55rem 0;border-bottom:1px solid rgba(255,255,255,0.07)}
+.nsi:last-child{border-bottom:none}
+.nsn{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:0.55rem;color:rgba(255,255,255,0.4);flex-shrink:0;margin-top:2px}
+.nst{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:rgba(255,255,255,0.58);line-height:1.55}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--cream)}::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div style="display:flex;align-items:baseline">
+    <span class="nbname">HirePanel</span>
+    <span class="nbbadge">AI Beta</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html" class="nav-link">Home</a></li>
+    <li><a href="resume.html" class="nav-link active">Resume Checker</a></li>
+    <li><a href="jobs.html" class="nav-link">Jobs</a></li>
+    <li><a href="search.html" class="nav-link">Search</a></li>
+  </ul>
+  <a href="jobs.html" class="nav-cta">Post a Role</a>
+</nav>
+
+<div class="wrap">
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">01 — Resume Intelligence</div>
+      <h1>Resume Checker</h1>
+    </div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:0.67rem;color:var(--ink-faint);text-align:right;line-height:1.8">
+      Paste your resume below<br>to run the multi-agent panel.
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="iblock">
+      <div class="ilabel">Upload File <em>(.txt or .pdf — auto-fills text field)</em></div>
+      <div class="drop" id="dropZone"
+        onclick="document.getElementById('fi').click()"
+        ondragover="event.preventDefault()"
+        ondrop="event.preventDefault();loadFile(event.dataTransfer.files[0])">
+        <div class="drop-icon"></div>
+        <div class="drop-title" id="dropTitle">Drop .txt or .pdf file here</div>
+        <div class="drop-sub" id="dropSub">Plain text or PDF only — or click to browse</div>
+        <input id="fi" type="file" accept=".txt, .pdf" style="display:none" onchange="loadFile(this.files[0])" onclick="event.stopPropagation()">
+      </div>
+    </div>
+    <div class="iblock">
+      <div class="ilabel">Resume Text <em>(required)</em></div>
+      <textarea id="resumeText" rows="8"
+        placeholder="Paste your full resume here...&#10;&#10;Name: Alex Chen&#10;Senior Engineer at Acme Corp (2021–2024)&#10;Skills: Python, Go, Kubernetes..."
+        oninput="tick('resumeText','rc')"></textarea>
+      <div class="ctr" id="rc">0 characters — paste your resume above</div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="iblock">
+      <div class="ilabel">Job Description <em>(optional)</em></div>
+      <textarea id="jdText" rows="5"
+        placeholder="We are looking for a Staff Engineer to lead architecture..."
+        oninput="tick('jdText','jdc')"></textarea>
+      <div class="ctr" id="jdc">0 chars</div>
+    </div>
+    <div class="iblock">
+      <div class="ilabel">Interview Transcript <em>(optional)</em></div>
+      <textarea id="txText" rows="5"
+        placeholder="Q: Walk me through your approach...&#10;A: I start by clarifying requirements..."
+        oninput="tick('txText','txc')"></textarea>
+      <div class="ctr" id="txc">0 chars</div>
+    </div>
+  </div>
+
+  <div class="run-bar">
+    <button class="run-btn" id="runBtn" onclick="runPanel()"> Run Multi-Agent Panel</button>
+    <div class="prog-wrap" id="pw">
+      <div class="prog-label" id="pl">Initializing...</div>
+      <div class="prog-track"><div class="prog-fill" id="pf"></div></div>
+    </div>
+  </div>
+
+  <div class="errbox" id="errbox"></div>
+
+  <div class="results" id="results">
+    <div class="rtabs">
+      <button class="rtab on" data-tab="overview" onclick="switchTab(this)">Overview</button>
+      <button class="rtab" data-tab="disc" onclick="switchTab(this)">Discrepancies</button>
+      <button class="rtab" data-tab="trace" onclick="switchTab(this)">Agent Trace</button>
+      <button class="rtab" data-tab="verdict" onclick="switchTab(this)">Verdict</button>
+    </div>
+    <div class="rbody" id="rbody"></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+// ==========================================
+// API CONFIGURATION
+// ==========================================
+const GROQ_API_KEY = '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';
+
+/* counters */
+function tick(tid, cid) {
+  const v = $(tid).value;
+  $(cid).textContent = v.length ? v.length+' chars' : (tid==='resumeText'?'0 characters — paste your resume above':'0 chars');
+  $(cid).className = 'ctr'+(v.length?' on':'');
+  $(tid).className = v.length ? 'filled' : '';
+}
+
+/* progress */
+function setP(pct, lbl){ $('pf').style.width=pct+'%'; $('pl').textContent=lbl; }
+
+/* error */
+function showErr(m){ $('errbox').textContent='⚠ '+m; $('errbox').style.display='block'; }
+function hideErr(){ $('errbox').style.display='none'; }
+
+/* file handler with PDF support */
+async function loadFile(file) {
+  if(!file) return;
+  
+  if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+    $('dropTitle').textContent = '⏳ Reading PDF...';
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+      
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(' ');
+        fullText += pageText + '\n\n';
+      }
+      
+      $('resumeText').value = fullText.trim();
+      tick('resumeText', 'rc');
+      $('dropZone').classList.add('ok'); 
+      $('dropTitle').textContent = '✓ ' + file.name; 
+      $('dropSub').textContent = 'PDF text extracted →';
+      
+    } catch (err) {
+      console.error(err);
+      $('dropTitle').textContent = '✗ Failed to parse PDF';
+      $('dropSub').textContent = 'Try pasting the text manually instead.';
+    }
+  } else {
+    const r = new FileReader();
+    r.onload = e => { 
+      $('resumeText').value = e.target.result; 
+      tick('resumeText', 'rc');
+      $('dropZone').classList.add('ok'); 
+      $('dropTitle').textContent = '✓ ' + file.name; 
+      $('dropSub').textContent = 'Loaded →'; 
+    };
+    r.onerror = () => { $('dropTitle').textContent = '✗ Read failed — paste text instead'; };
+    r.readAsText(file);
+  }
+}
+
+var RESULT = null;
+
+// ==========================================
+// UNIFIED GROQ ANALYSIS
+// ==========================================
+async function analyzeWithGroq(resumeText, jdText, txText) {
+  // Truncate text to ensure we don't blow past context limits 
+  // while retaining enough content for deep analysis
+  const resume = resumeText.substring(0, 6000);
+  const jd = jdText.substring(0, 2000);
+  const tx = txText.substring(0, 2000);
+  
+  const systemPrompt = `
+  You are an expert technical recruiter AI. First, analyze the provided "Resume" text to determine if it is actually a resume or CV.
+  
+  If it is NOT a resume (e.g. random text, a recipe, a code snippet), respond strictly with this JSON:
+  {
+    "is_resume": false,
+    "error": "Brief explanation of why this document does not appear to be a resume."
+  }
+
+  If it IS a resume, perform a deep multi-agent analysis against the Job Description (JD) and Interview Transcript (if provided). 
+  Respond strictly with this JSON format (no markdown, no extra text):
+  {
+    "is_resume": true,
+    "score": <number 0-100>,
+    "dimensions": [
+      {"label": "Technical Depth", "value": <number 0-100>, "color": "#1D6B72 or #B8860B or #C8472B"},
+      {"label": "Experience Match", "value": <number 0-100>, "color": "HEX_COLOR"},
+      {"label": "Claim Consistency", "value": <number 0-100>, "color": "HEX_COLOR"},
+      {"label": "Communication", "value": <number 0-100>, "color": "HEX_COLOR"},
+      {"label": "Leadership Evidence", "value": <number 0-100>, "color": "HEX_COLOR"}
+    ],
+    "summary": "A 2-3 sentence professional summary of the candidate and their fit.",
+    "discrepancies": [
+      {"type": "crit or warn or info", "badge": "Critical or Warning or Positive", "title": "Short title", "text": "Detailed explanation"}
+    ],
+    "trace": [
+      {"cls": "tc-r", "label": "Resume Analyst", "title": "Parse Data", "body": "Details..."},
+      {"cls": "tc-t", "label": "Tech Interrogator", "title": "Tech Stack", "body": "Details..."},
+      {"cls": "tc-g", "label": "Gap Detector", "title": "Cross-Reference", "body": "Details..."},
+      {"cls": "tc-c", "label": "Consensus Engine", "title": "Final Ruling", "body": "Details..."}
+    ],
+    "verdict": {
+      "decision": "hire or cond or no",
+      "label": "Strong Hire or Conditional Hire or No Hire",
+      "subtitle": "Short subtitle explaining the score",
+      "strengths": ["Strength 1", "Strength 2", "Strength 3"],
+      "risks": ["Risk 1", "Risk 2", "Risk 3"],
+      "actions": [
+        {"n": "1", "text": "Actionable step 1 for interviewer"},
+        {"n": "2", "text": "Actionable step 2"},
+        {"n": "3", "text": "Actionable step 3"}
+      ]
+    }
+  }`;
+
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${GROQ_API_KEY.trim()}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      // We use the 70b model because it handles strict JSON formatting much better than the 8b models
+      model: 'llama-3.3-70b-versatile', 
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Resume:\n${resume}\n\nJob Description:\n${jd || "None"}\n\nTranscript:\n${tx || "None"}` }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.2
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error("Groq API Detailed Error:", errorData);
+    const errorMsg = errorData.error?.message || `HTTP ${response.status} ${response.statusText}`;
+    throw new Error(`Groq API Error: ${errorMsg}`);
+  }
+
+  const data = await response.json();
+  try {
+    return JSON.parse(data.choices[0].message.content);
+  } catch (parseErr) {
+    console.error("JSON Parse Error:", data.choices[0].message.content);
+    throw new Error("Groq returned malformed JSON.");
+  }
+}
+
+/* ── run ─────────────────────────────────────────────────────────────────────── */
+async function runPanel(){
+  hideErr();
+  const resume = $('resumeText').value.trim();
+  const jd = $('jdText').value.trim();
+  const tx = $('txText').value.trim();
+  
+  if(resume.length < 20) {
+    showErr('Please paste your resume text — or upload a .txt/.pdf file.');
+    return;
+  }
+  
+  if(GROQ_API_KEY === 'YOUR_GROQ_API_KEY_HERE') {
+    showErr('API Key is missing. Please add your Groq API key in the code.');
+    return;
+  }
+
+  const btn = $('runBtn');
+  btn.disabled = true; 
+  $('pw').style.display = 'flex'; 
+  $('results').classList.remove('show'); 
+  RESULT = null;
+
+  try {
+    setP(25, 'Groq: Verifying document...');
+    
+    // Fake progress steps for UI feel while we wait for the single API call
+    setTimeout(() => setP(50, 'Groq: Performing multi-agent analysis...'), 1500);
+    setTimeout(() => setP(75, 'Groq: Generating insights and dashboard...'), 3500);
+
+    const groqData = await analyzeWithGroq(resume, jd, tx);
+    
+    if (!groqData.is_resume) {
+      throw new Error(`Document rejected: ${groqData.error}`);
+    }
+
+    RESULT = groqData;
+    
+    setP(100, 'Evaluation complete.');
+    await wait(400);
+    
+    $('pw').style.display = 'none'; 
+    btn.disabled = false; 
+    $('results').classList.add('show');
+    
+    document.querySelectorAll('.rtab').forEach(t => t.classList.remove('on'));
+    document.querySelector('[data-tab="overview"]').classList.add('on');
+    renderTab('overview');
+
+  } catch (err) {
+    console.error(err);
+    setP(0, 'Failed.');
+    $('pw').style.display = 'none'; 
+    btn.disabled = false;
+    showErr(err.message || 'An error occurred during AI analysis.');
+  }
+}
+
+/* ── tabs ─────────────────────────────────────────────────────────────────────── */
+function switchTab(el){
+  document.querySelectorAll('.rtab').forEach(function(t){t.classList.remove('on');});
+  el.classList.add('on'); renderTab(el.dataset.tab);
+}
+
+function renderTab(name){
+  if(!RESULT)return;
+  var body=$('rbody'), d=RESULT;
+  if(name==='overview'){
+    var R=54,C=2*Math.PI*R,sc=d.score,off=C*(1-sc/100),col=sc>=75?'#1D6B72':sc>=52?'#B8860B':'#C8472B';
+    body.innerHTML=
+      '<div class="ov-grid">'+
+        '<div class="ring-wrap">'+
+          '<svg width="130" height="130" viewBox="0 0 130 130">'+
+            '<circle cx="65" cy="65" r="'+R+'" fill="none" stroke="#EDE7D9" stroke-width="9"/>'+
+            '<circle cx="65" cy="65" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="9" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" stroke-linecap="round"/>'+
+          '</svg>'+
+          '<div class="ring-center"><div class="ring-num">'+sc+'</div><div class="ring-sub">/ 100</div></div>'+
+        '</div>'+
+        '<div>'+d.dimensions.map(function(x){return(
+          '<div class="sbar">'+
+            '<div class="sbl">'+esc(x.label)+'</div>'+
+            '<div class="sbt"><div class="sbf" style="width:'+x.value+'%;background:'+x.color+'"></div></div>'+
+            '<div class="sbv">'+x.value+'</div>'+
+          '</div>');}).join('')+'</div>'+
+      '</div>'+
+      '<div class="sumcard"><strong style="color:var(--ink)">Panel Summary:</strong> '+esc(d.summary)+'</div>';
+  }
+  else if(name==='disc'){
+    body.innerHTML=d.discrepancies.map(function(x){return(
+      '<div class="dcard '+x.type+'">'+
+        '<span class="dbadge">'+esc(x.badge)+'</span>'+
+        '<div><div class="dtitle">'+esc(x.title)+'</div><div class="dtext">'+esc(x.text)+'</div></div>'+
+      '</div>');}).join('');
+  }
+  else if(name==='trace'){
+    body.innerHTML=d.trace.map(function(x){return(
+      '<div class="tcard">'+
+        '<div class="tchead"><span class="tcbadge '+x.cls+'">'+esc(x.label)+'</span><span class="tctitle">'+esc(x.title)+'</span></div>'+
+        '<div class="tcbody">'+esc(x.body)+'</div>'+
+      '</div>');}).join('');
+  }
+  else if(name==='verdict'){
+    var v=d.verdict,ico=v.decision==='hire'?'✓':v.decision==='no'?'✗':'⚡';
+    body.innerHTML=
+      '<div class="vwrap">'+
+        '<div class="vchip '+v.decision+'">'+ico+' '+esc(v.label)+'</div>'+
+        '<div class="vsub">'+esc(v.subtitle)+'</div>'+
+        '<div class="vgrid">'+
+          '<div class="vbox str"><div class="vbox-title">Strengths</div><ul>'+v.strengths.map(function(s){return'<li>'+esc(s)+'</li>';}).join('')+'</ul></div>'+
+          '<div class="vbox risk"><div class="vbox-title">Risks &amp; Red Flags</div><ul>'+v.risks.map(function(r){return'<li>'+esc(r)+'</li>';}).join('')+'</ul></div>'+
+        '</div>'+
+        '<div class="nsc"><div class="nsc-title">// Required actions before extending offer</div>'+
+          v.actions.map(function(a){return'<div class="nsi"><div class="nsn">'+a.n+'</div><div class="nst">'+esc(a.text)+'</div></div>';}).join('')+
+        '</div>'+
+      '</div>';
+  }
+}
+</script>
+</body>
+</html>

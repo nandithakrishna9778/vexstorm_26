@@ -1,550 +1,96 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ATS-Friendly Resume Checker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/flowbite@4.0.0/dist/flowbite.min.css" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            // Your custom palette mapped to semantic names
-            base: '#f5f0e8',
-            surface: '#ede7d9',
-            ink: '#1a1714',
-            muted: '#4a4547',
-            black: '#000000',
-            white: '#ffffff',
-          },
-          fontFamily: {
-            heading: ['Plus Jakarta Sans','sans-serif'],
-            body: ['Inter','sans-serif']
-          }
-        }
-      }
-    }
-  </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HirePanel — Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-base text-muted font-body">
-  <header class="bg-base/90 backdrop-blur border-b border-surface sticky top-0 z-30">
-    <div class="max-w-screen-xl mx-auto flex items-center justify-between px-6 lg:px-8 py-4">
-      <div class="flex items-center space-x-3">
-        <div class="h-10 w-10 rounded-xl bg-ink text-white flex items-center justify-center shadow-md font-bold text-sm">ATS</div>
-        <div>
-          <p class="text-lg font-semibold font-heading text-ink">ATS Resume Fit</p>
-          <p class="text-sm text-muted">Check ATS-friendliness & match in minutes</p>
-        </div>
-      </div>
-      <a href="#analyze" class="hidden sm:inline-flex items-center px-4 py-2 rounded-lg bg-ink text-white text-sm font-semibold hover:bg-black shadow-md transition-all">Analyze now</a>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-brand">
+    <span class="nbname">HirePanel</span>
+    <span class="nbbadge">AI Beta</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html"  class="nav-link active">Home</a></li>
+    <li><a href="resume.html" class="nav-link">Resume Checker</a></li>
+    <li><a href="jobs.html"   class="nav-link">Jobs</a></li>
+    <li><a href="search.html" class="nav-link">Search</a></li>
+  </ul>
+  <a href="jobs.html" class="nav-cta">Post a Role</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-l">
+    <div class="eyebrow fu">Multi-Agent Hiring Intelligence</div>
+    <h1 class="hero-title fu d1">Hire beyond<br>the <em>checklist.</em></h1>
+    <p class="hero-desc fu d2">Four AI agents evaluate candidates the way a real committee would — spotting contradictions, probing technical depth, and reaching consensus through structured debate.</p>
+    <div class="hero-btns fu d3">
+      <a href="resume.html" class="btn btn-dark">Analyze a Resume →</a>
+      <a href="jobs.html"   class="btn btn-out">Browse Roles</a>
     </div>
-  </header>
-
-  <main>
-    <section class="relative overflow-hidden bg-ink text-base">
-      <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_20%,rgba(245,240,232,0.15),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(245,240,232,0.18),transparent_30%)]"></div>
-      <div class="relative max-w-screen-xl mx-auto px-6 lg:px-8 py-20 lg:py-28 flex flex-col lg:flex-row items-center gap-12">
-        <div class="lg:w-1/2 space-y-6">
-          <div class="inline-flex items-center space-x-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm">
-            <span class="h-2 w-2 rounded-full bg-surface animate-pulse"></span>
-            <span class="text-surface">Upload PDF/DOC · Instant ATS check</span>
-          </div>
-          <h1 class="text-4xl lg:text-6xl font-heading font-bold leading-tight text-white">Make your resume ATS-friendly and aligned.</h1>
-          <p class="text-lg text-surface/80 max-w-2xl">Upload your resume, paste the job description, and get a quick read on ATS readiness plus role match. No accounts required.</p>
-          <div class="flex flex-wrap gap-4">
-            <a href="#analyze" class="inline-flex items-center px-6 py-3 rounded-lg bg-white text-ink font-semibold shadow-lg hover:bg-surface transition-all">Start free analysis</a>
-            <span class="inline-flex items-center text-sm text-surface/70">Takes under 30 seconds</span>
-          </div>
-          <div class="grid grid-cols-2 gap-4 text-left">
-            <div class="bg-white/5 border border-white/10 rounded-xl p-4">
-              <p class="text-sm text-surface/70">Supported</p>
-              <p class="text-xl font-semibold text-white">PDF & TXT</p>
-            </div>
-            <div class="bg-white/5 border border-white/10 rounded-xl p-4">
-              <p class="text-sm text-surface/70">Checks</p>
-              <p class="text-xl font-semibold text-white">ATS & Job Match</p>
-            </div>
-          </div>
-        </div>
-        <div class="lg:w-1/2">
-          <div class="bg-base text-ink rounded-2xl shadow-2xl p-6 lg:p-8 space-y-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-muted">Quick view</p>
-                <p class="text-xl font-semibold">ATS snapshot</p>
-              </div>
-              <span class="px-3 py-1 rounded-full text-sm bg-surface text-ink font-medium">Live demo</span>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="p-4 rounded-xl border border-surface shadow-sm bg-white">
-                <p class="text-sm text-muted">ATS-friendliness</p>
-                <p class="text-3xl font-bold text-ink" id="heroAtsScore">--</p>
-                <p class="text-sm text-muted" id="heroAtsLabel">Awaiting upload</p>
-              </div>
-              <div class="p-4 rounded-xl border border-surface shadow-sm bg-white">
-                <p class="text-sm text-muted">Job match</p>
-                <p class="text-3xl font-bold text-muted" id="heroMatchScore">--</p>
-                <p class="text-sm text-muted" id="heroMatchLabel">Awaiting JD</p>
-              </div>
-            </div>
-            <ul class="space-y-3 text-sm text-muted" id="heroInsights">
-              <li class="flex items-start space-x-3"><span class="mt-1 h-2 w-2 rounded-full bg-ink"></span><span>Upload your resume to see ATS checks on headings, layout, and parsability.</span></li>
-              <li class="flex items-start space-x-3"><span class="mt-1 h-2 w-2 rounded-full bg-muted"></span><span>Paste the job description to calculate keyword overlap.</span></li>
-            </ul>
-            <a href="#analyze" class="inline-flex items-center justify-center w-full px-4 py-3 rounded-lg bg-ink text-white font-semibold hover:bg-black shadow-md transition-all">Analyze my resume</a>
-          </div>
-        </div>
+  </div>
+  <div class="hero-r">
+    <div class="metrics fu d1">
+      <div class="mcell"><div class="mnum">97<span>%</span></div><div class="mlabel">Detection Accuracy</div></div>
+      <div class="mcell"><div class="mnum">4</div><div class="mlabel">Specialized Agents</div></div>
+      <div class="mcell"><div class="mnum">&lt;90<span>s</span></div><div class="mlabel">Evaluation Time</div></div>
+      <div class="mcell"><div class="mnum">3<span>×</span></div><div class="mlabel">Better than Keywords</div></div>
+    </div>
+    <div class="terminal fu d2">
+      <div class="term-header">
+        <div class="tdots"><div class="tdot td-r"></div><div class="tdot td-y"></div><div class="tdot td-g"></div></div>
+        <div class="term-label">Live Agent Trace — Sample Run</div>
       </div>
-    </section>
-
-    <section id="analyze" class="py-16 lg:py-24">
-      <div class="max-w-screen-xl mx-auto px-6 lg:px-8 grid lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2 space-y-6">
-          <div class="bg-white rounded-2xl shadow-xl border border-surface p-6 lg:p-8">
-            <div class="flex items-start justify-between mb-6">
-              <div>
-                <p class="text-sm text-muted">Upload & Paste</p>
-                <h2 class="text-2xl font-heading font-bold text-ink">Resume & Job Description</h2>
-              </div>
-              <span class="px-3 py-1 rounded-full bg-surface text-ink text-sm font-medium">Step 1</span>
-            </div>
-            <div class="space-y-4">
-              <label class="block">
-                <span class="text-sm font-medium text-ink">Resume file (PDF or TXT recommended)</span>
-                <input id="resumeInput" type="file" accept=".pdf,.doc,.docx,.txt" class="mt-2 block w-full text-sm text-muted border border-dashed border-muted/50 rounded-lg cursor-pointer bg-base/50 focus:outline-none focus:ring-2 focus:ring-ink focus:border-transparent p-3" />
-                <p class="text-xs text-muted mt-2">PDF and TXT give the most accurate results. DOC/DOCX cannot be parsed in-browser — convert to PDF for best accuracy.</p>
-              </label>
-              <label class="block">
-                <span class="text-sm font-medium text-ink">Job description</span>
-                <textarea id="jdInput" rows="6" class="mt-2 block w-full rounded-lg border border-surface bg-base/30 text-ink text-sm focus:ring-2 focus:ring-ink focus:border-transparent p-3" placeholder="Paste the role overview, responsibilities, and requirements"></textarea>
-              </label>
-              <div class="flex flex-wrap items-center gap-4">
-                <button id="analyzeBtn" class="inline-flex items-center px-6 py-3 rounded-lg bg-ink text-white font-semibold shadow-lg hover:bg-black transition-all disabled:opacity-60 disabled:cursor-not-allowed">Analyze resume</button>
-                <p id="statusText" class="text-sm text-muted">No file selected yet.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-2xl shadow-xl border border-surface p-6 lg:p-8">
-            <div class="flex items-start justify-between mb-6">
-              <div>
-                <p class="text-sm text-muted">Results</p>
-                <h2 class="text-2xl font-heading font-bold text-ink">ATS-friendliness & Match</h2>
-              </div>
-              <span class="px-3 py-1 rounded-full bg-surface text-ink text-sm font-medium">Step 2</span>
-            </div>
-            <div class="grid sm:grid-cols-2 gap-4 mb-6">
-              <div class="p-4 rounded-xl border border-surface shadow-sm bg-base/30">
-                <div class="flex items-center justify-between mb-2">
-                  <p class="text-sm text-muted">ATS-friendliness</p>
-                  <span id="atsBadge" class="px-3 py-1 rounded-full text-xs bg-surface text-ink border border-surface">Pending</span>
-                </div>
-                <p class="text-3xl font-bold text-ink" id="atsScore">--</p>
-                <p class="text-sm text-muted mt-1" id="atsSummary">Upload a resume to check parsing readiness.</p>
-              </div>
-              <div class="p-4 rounded-xl border border-surface shadow-sm bg-base/30">
-                <div class="flex items-center justify-between mb-2">
-                  <p class="text-sm text-muted">Job match</p>
-                  <span id="matchBadge" class="px-3 py-1 rounded-full text-xs bg-surface text-ink border border-surface">Pending</span>
-                </div>
-                <p class="text-3xl font-bold text-muted" id="matchScore">--</p>
-                <p class="text-sm text-muted mt-1" id="matchSummary">Paste a job description to estimate overlap.</p>
-              </div>
-            </div>
-
-            <div class="space-y-4 mb-8" id="progressBars" style="display:none">
-              <div>
-                <div class="flex justify-between text-xs text-muted mb-1 font-medium">
-                  <span>ATS Score</span>
-                  <span id="atsBarLabel">0/100</span>
-                </div>
-                <div class="w-full bg-surface rounded-full h-2">
-                  <div id="atsBar" class="h-2 rounded-full bg-ink transition-all duration-700" style="width:0%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex justify-between text-xs text-muted mb-1 font-medium">
-                  <span>Job Match</span>
-                  <span id="matchBarLabel">0%</span>
-                </div>
-                <div class="w-full bg-surface rounded-full h-2">
-                  <div id="matchBar" class="h-2 rounded-full bg-muted transition-all duration-700" style="width:0%"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid lg:grid-cols-3 gap-4">
-              <div class="lg:col-span-2 bg-base border border-surface rounded-xl p-4 shadow-sm">
-                <p class="text-sm font-semibold text-ink mb-3">Key findings</p>
-                <ul id="findingsList" class="space-y-3 text-sm text-muted">
-                  <li class="flex items-start space-x-2">
-                    <span class="mt-2 h-1.5 w-1.5 rounded-full bg-muted flex-shrink-0"></span>
-                    <span>Awaiting analysis.</span>
-                  </li>
-                </ul>
-              </div>
-              <div class="bg-white border border-surface rounded-xl p-4 shadow-sm">
-                <p class="text-sm font-semibold text-ink mb-2">Quick tips</p>
-                <ul class="space-y-2 text-sm text-muted list-disc list-inside">
-                  <li>Use standard headings.</li>
-                  <li>Avoid images & tables.</li>
-                  <li>Match role keywords.</li>
-                  <li>Keep to 1-2 pages.</li>
-                  <li>Use PDF for best parsing.</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <aside class="bg-white rounded-2xl shadow-xl border border-surface p-6 lg:p-8 space-y-6">
-          <div class="flex items-start justify-between">
-            <div>
-              <p class="text-sm text-muted">Why it matters</p>
-              <h3 class="text-xl font-heading font-bold text-ink">Improve your first pass</h3>
-            </div>
-            <span class="px-3 py-1 rounded-full bg-surface text-ink text-sm font-medium">Guide</span>
-          </div>
-          <div class="space-y-4 text-sm text-muted">
-            <p><span class="font-semibold text-ink">ATS-friendliness</span> looks at layout simplicity, file type, and parsability signals.</p>
-            <p><span class="font-semibold text-ink">Match score</span> measures keyword overlap between your resume text and the job description.</p>
-            <p class="text-ink font-semibold">Tip: keep the resume 1-2 pages, use consistent headings, and mirror the job's language.</p>
-          </div>
-          <div class="bg-base border border-surface rounded-xl p-4 shadow-sm">
-            <p class="text-sm font-semibold text-ink mb-2">Best formats</p>
-            <p class="text-sm text-muted leading-relaxed"><span class="font-semibold text-ink">PDF</span> — best accuracy.<br/><span class="font-semibold text-ink">TXT</span> — works well for plain text.<br/><span class="font-semibold text-ink">DOC/DOCX</span> — cannot be parsed in-browser. Convert to PDF.</p>
-          </div>
-          <div class="bg-white border border-surface rounded-xl p-4 shadow-sm">
-            <p class="text-sm font-semibold text-ink mb-2">Need better matches?</p>
-            <p class="text-sm text-muted">Adjust keywords to reflect responsibilities and requirements in the JD.</p>
-          </div>
-        </aside>
-      </div>
-    </section>
-  </main>
-
-  <footer class="bg-ink text-base py-10">
-    <div class="max-w-screen-xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div>
-        <p class="font-heading text-lg font-semibold text-white">ATS Resume Fit</p>
-        <p class="text-sm text-surface/70">Upload · Check ATS · Align to the job</p>
-      </div>
-      <div class="flex items-center space-x-4 text-sm text-surface/70">
-        <span>PDF/TXT ready</span>
-        <span class="h-1 w-1 rounded-full bg-muted"></span>
-        <span>Instant feedback</span>
+      <div class="term-body">
+        <div class="tl"><span class="ta ta-r">Resume</span><span class="tt">Claims <strong>8yr distributed systems exp.</strong> Earliest verifiable role: 2019. <strong>3yr gap flagged.</strong></span></div>
+        <div class="tl"><span class="ta ta-t">Interviewer</span><span class="tt">Q3 CAP theorem response shows <strong>genuine architectural depth.</strong> Not pattern-matched from practice.</span></div>
+        <div class="tl"><span class="ta ta-g">Gap</span><span class="tt"><strong>Conflict:</strong> Resume "led microservices migration" — interview reveals limited service mesh knowledge. Severity: HIGH.</span></div>
+        <div class="tl"><span class="ta ta-t">Interviewer</span><span class="tt">Challenging Gap finding: Q7 correctly described Istio circuit-breaker. <strong>Partial credit warranted.</strong></span></div>
+        <div class="tl"><span class="ta ta-c">Consensus</span><span class="tt">Vote 3-1 → <strong>CONDITIONAL HIRE.</strong> Technical depth offsets inflation. Leadership ref check required before offer.</span></div>
       </div>
     </div>
-  </footer>
+  </div>
+</section>
 
-  <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
-  <script>
-    Parse.initialize('dBN908lFPixDcM0oQEpdTgkti0V9SL3QkzcS8YNA', '7GqXr5yuyeHSq6SHma7BDirrS1BipsbsgGQixbNk');
-    Parse.serverURL = 'https://parseapi.back4app.com';
-  </script>
-  <script>
-    // ── DOM refs ──────────────────────────────────────────────────────────────
-    const resumeInput  = document.getElementById('resumeInput');
-    const jdInput      = document.getElementById('jdInput');
-    const analyzeBtn   = document.getElementById('analyzeBtn');
-    const statusText   = document.getElementById('statusText');
-    const atsScoreEl   = document.getElementById('atsScore');
-    const matchScoreEl = document.getElementById('matchScore');
-    const atsSummaryEl = document.getElementById('atsSummary');
-    const matchSummaryEl = document.getElementById('matchSummary');
-    const findingsList = document.getElementById('findingsList');
-    const atsBadge     = document.getElementById('atsBadge');
-    const matchBadge   = document.getElementById('matchBadge');
-    const heroAtsScore  = document.getElementById('heroAtsScore');
-    const heroMatchScore = document.getElementById('heroMatchScore');
-    const heroAtsLabel  = document.getElementById('heroAtsLabel');
-    const heroMatchLabel = document.getElementById('heroMatchLabel');
-    const progressBars  = document.getElementById('progressBars');
-    const atsBar        = document.getElementById('atsBar');
-    const matchBar      = document.getElementById('matchBar');
-    const atsBarLabel   = document.getElementById('atsBarLabel');
-    const matchBarLabel = document.getElementById('matchBarLabel');
+<!-- FEATURES -->
+<section class="features">
+  <div class="fh">
+    <div>
+      <div class="eyebrow">The Panel</div>
+      <h2 class="sec-title">Four agents.<br>One verdict.</h2>
+    </div>
+    <p class="fsub">Each agent operates independently to eliminate groupthink and anchoring bias. They then challenge each other's findings in structured cross-examination before the Consensus Engine delivers a final ruling.</p>
+  </div>
+  <div class="fgrid">
+    <div class="fcard"><div class="fnum">01</div><div class="ficon">📄</div><div class="fname">Resume Analyst</div><p class="fdesc">Parses experience timelines, detects inflated claims, and cross-references stated skills against demonstrated work history with forensic precision.</p></div>
+    <div class="fcard"><div class="fnum">02</div><div class="ficon">🎯</div><div class="fname">Technical Interrogator</div><p class="fdesc">Evaluates transcript depth. Distinguishes genuine architectural understanding from memorized LeetCode answers through probing follow-ups.</p></div>
+    <div class="fcard"><div class="fnum">03</div><div class="ficon">🔍</div><div class="fname">Gap Detector</div><p class="fdesc">Identifies contradictions between resume claims and interview responses. Logs every discrepancy with severity scores and supporting evidence.</p></div>
+    <div class="fcard"><div class="fnum">04</div><div class="ficon">⚖️</div><div class="fname">Consensus Engine</div><p class="fdesc">Mediates agent disagreements, weighs all evidence, and delivers a final hire/no-hire verdict with a complete auditable reasoning trace.</p></div>
+    <div class="fcard"><div class="fnum">05</div><div class="ficon">📊</div><div class="fname">Contradiction Log</div><p class="fdesc">A structured audit trail of every discrepancy, how agents challenged each other, and what evidence ultimately swayed the final verdict.</p></div>
+    <div class="fcard"><div class="fnum">06</div><div class="ficon">🧠</div><div class="fname">Depth Scoring</div><p class="fdesc">Goes beyond keyword matching. Evaluates conceptual clarity, reasoning quality, and whether candidates can defend technical decisions under pressure.</p></div>
+  </div>
+</section>
 
-    const allowedExt = ['pdf', 'doc', 'docx', 'txt'];
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="how-sticky">
+    <div class="eyebrow">Process</div>
+    <h2 class="sec-title" style="font-size:2.1rem">The panel<br>in action.</h2>
+    <p class="how-sub">Upload a resume and transcript. The agents take it from there — no rubrics, no keyword lists, no shortcuts.</p>
+  </div>
+  <ol class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Input Ingestion & Parsing</div><p class="sdesc">Resume, transcript, and job description are tokenized and structured for each agent's specialized lens. No shared context between agents at this stage.</p></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Independent Parallel Analysis</div><p class="sdesc">All four agents analyze simultaneously. Isolation prevents groupthink and anchoring bias that occurs if agents see each other's preliminary findings first.</p></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Cross-Examination Phase</div><p class="sdesc">Agents share findings and formally challenge each other. The Gap Detector confronts the Interviewer with resume claims. Every challenge is logged.</p></div></li>
+    <li class="step"><div class="snum">4</div><div><div class="stitle">Weighted Voting</div><p class="sdesc">Agents cast weighted votes based on confidence and evidence strength. Unanimous decisions are high-confidence. Contested decisions trigger additional scrutiny.</p></div></li>
+    <li class="step"><div class="snum">5</div><div><div class="stitle">Verdict & Reasoning Trace</div><p class="sdesc">The Consensus Engine delivers a final Hire / Conditional / No-Hire verdict with a complete human-readable trace and specific follow-up actions required.</p></div></li>
+  </ol>
+</section>
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-    function sanitizeFilename(name) {
-      return name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    }
-
-    function updateStatus(message, isError = false) {
-      statusText.textContent = message;
-      // Adjusted error color slightly to fit the muted palette better, or stick to a softer red
-      statusText.className = `text-sm ${isError ? 'text-red-800 font-medium' : 'text-muted'}`;
-    }
-
-    function badge(el, text, state) {
-      el.textContent = text;
-      // Adapted to the elegant custom palette
-      const styles = {
-        success: 'bg-surface text-ink border border-ink/20',
-        warning: 'bg-surface text-muted border border-muted/30',
-        danger:  'bg-white text-muted border border-muted/50',
-        neutral: 'bg-base text-muted border border-surface'
-      };
-      el.className = `px-3 py-1 rounded-full text-xs font-medium ${styles[state] || styles.neutral}`;
-    }
-
-    // ── Text extraction ───────────────────────────────────────────────────────
-    async function extractText(file) {
-      const ext = (file.name.split('.').pop() || '').toLowerCase();
-
-      if (ext === 'txt') {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload  = () => resolve(reader.result || '');
-          reader.onerror = () => resolve('');
-          reader.readAsText(file);
-        });
-      }
-
-      if (ext === 'pdf') {
-        try {
-          const arrayBuffer = await file.arrayBuffer();
-          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-          let fullText = '';
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page    = await pdf.getPage(i);
-            const content = await page.getTextContent();
-            fullText += content.items.map(item => item.str).join(' ') + '\n';
-          }
-          return fullText;
-        } catch (e) {
-          console.error('PDF parse error:', e);
-          return '';
-        }
-      }
-
-      return '';
-    }
-
-    // ── ATS scoring (FIXED VERSION) ───────────────────────────────────────────
-    function computeAtsScore(file, text) {
-      let score = 100;
-      const issues = [];
-      const ext = (file.name.split('.').pop() || '').toLowerCase();
-      const wordCount = text.trim().split(/\s+/).filter(w => w.length > 1).length;
-
-      // DOC/DOCX cannot be read in browser
-      if (ext === 'doc' || ext === 'docx') {
-        return {
-          score: 0,
-          label: 'Cannot read DOC',
-          issues: ['DOC/DOCX files cannot be parsed in the browser. Please convert your resume to PDF for an accurate score.']
-        };
-      }
-
-      // Empty or near-empty — likely a scanned PDF or unreadable file
-      if (wordCount < 30) {
-        return {
-          score: 0,
-          label: 'Not readable',
-          issues: ['Resume appears empty or unreadable. If it is a PDF, ensure the text is selectable (not a scanned image).']
-        };
-      }
-
-      // File size
-      if (file.size > 2 * 1024 * 1024) {
-        issues.push('File is large (over 2 MB). Compress or simplify formatting.');
-        score -= 10;
-      }
-
-      // Tables / columns mentioned in text
-      if (/(table|columns?)/i.test(text)) {
-        issues.push('Tables or columns detected. ATS systems may misread content inside tables.');
-        score -= 10;
-      }
-
-      // Missing standard section headings
-      if (!/(experience|education|skills)/i.test(text)) {
-        issues.push('Missing standard headings. Add "Experience", "Education", and "Skills" sections.');
-        score -= 15;
-      }
-
-      // No bullet points found
-      if (!/(•|-|\*)\s/.test(text)) {
-        issues.push('No bullet points detected. Use "•" or "-" to list achievements and responsibilities.');
-        score -= 5;
-      }
-
-      // Contact info check
-      if (!/(email|phone|\d{10}|@)/.test(text)) {
-        issues.push('No contact information found. Ensure your email and phone number are present.');
-        score -= 5;
-      }
-
-      // Dates check (employers / education timeline)
-      if (!/(20\d{2}|19\d{2})/.test(text)) {
-        issues.push('No dates found. Include years for each job and education entry.');
-        score -= 5;
-      }
-
-      score = Math.max(0, Math.min(100, score));
-      const label = score >= 80 ? 'ATS-ready'
-                  : score >= 60 ? 'Needs minor tweaks'
-                  : score >= 30 ? 'Needs work'
-                  : 'Not readable';
-      return { score, label, issues };
-    }
-
-    // ── Match scoring ─────────────────────────────────────────────────────────
-    function computeMatchScore(resumeText, jdText) {
-      const clean = str => str.toLowerCase().replace(/[^a-z0-9\s]/g, ' ');
-      const jdWords     = clean(jdText).split(/\s+/).filter(w => w.length > 4);
-      const resumeWords = new Set(clean(resumeText).split(/\s+/).filter(w => w.length > 4));
-      const keywords    = Array.from(new Set(jdWords)).slice(0, 40);
-      const matched     = keywords.filter(k => resumeWords.has(k));
-      const ratio       = keywords.length ? Math.round((matched.length / keywords.length) * 100) : 0;
-      const label       = ratio >= 75 ? 'Strong match' : ratio >= 50 ? 'Moderate match' : 'Low match';
-      const missing     = keywords.filter(k => !resumeWords.has(k)).slice(0, 5);
-      return { score: ratio, label, matched: matched.slice(0, 5), missing };
-    }
-
-    // ── Render findings ───────────────────────────────────────────────────────
-    function renderFindings(ats, match) {
-      const list = [];
-
-      if (ats.issues.length) {
-        ats.issues.forEach(i => list.push({ type: 'warning', text: i }));
-      } else {
-        list.push({ type: 'success', text: 'Layout looks ATS-friendly. Great job!' });
-      }
-
-      if (match.missing.length) {
-        list.push({ type: 'info', text: `Consider adding these keywords from the JD: ${match.missing.join(', ')}` });
-      } else if (match.score > 0) {
-        list.push({ type: 'success', text: 'Great keyword overlap with the job requirements.' });
-      }
-
-      if (match.matched.length) {
-        list.push({ type: 'success', text: `Keywords already matched: ${match.matched.join(', ')}` });
-      }
-
-      findingsList.innerHTML = '';
-      list.forEach(item => {
-        const li   = document.createElement('li');
-        li.className = 'flex items-start space-x-3';
-        const dot  = document.createElement('span');
-        // Colored dots adapted to the new palette
-        dot.className = `mt-2 h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-          item.type === 'success' ? 'bg-ink' :
-          item.type === 'warning' ? 'bg-muted' : 'bg-black'
-        }`;
-        const span = document.createElement('span');
-        span.textContent = item.text;
-        span.className = 'text-sm text-ink';
-        li.appendChild(dot);
-        li.appendChild(span);
-        findingsList.appendChild(li);
-      });
-    }
-
-    // ── Render scores ─────────────────────────────────────────────────────────
-    function renderScores(ats, match) {
-      atsScoreEl.textContent   = ats.score > 0 ? `${ats.score}/100` : '0/100';
-      matchScoreEl.textContent = `${match.score}%`;
-      atsSummaryEl.textContent  = ats.label;
-      matchSummaryEl.textContent = match.label;
-      heroAtsScore.textContent  = ats.score > 0 ? `${ats.score}` : '0';
-      heroMatchScore.textContent = `${match.score}%`;
-      heroAtsLabel.textContent  = ats.label;
-      heroMatchLabel.textContent = match.label;
-
-      badge(atsBadge,   ats.label,   ats.score >= 80 ? 'success' : ats.score >= 60 ? 'warning' : 'danger');
-      badge(matchBadge, match.label, match.score >= 75 ? 'success' : match.score >= 50 ? 'warning' : 'danger');
-
-      progressBars.style.display = 'block';
-      setTimeout(() => {
-        atsBar.style.width    = `${ats.score}%`;
-        matchBar.style.width  = `${match.score}%`;
-        atsBarLabel.textContent   = `${ats.score}/100`;
-        matchBarLabel.textContent = `${match.score}%`;
-      }, 100);
-    }
-
-    // ── Main analyze handler ──────────────────────────────────────────────────
-    analyzeBtn.addEventListener('click', async () => {
-      const file   = resumeInput.files[0];
-      const jdText = jdInput.value.trim();
-
-      if (!file) {
-        updateStatus('Please upload a resume file (PDF/TXT recommended).', true);
-        return;
-      }
-      const ext = (file.name.split('.').pop() || '').toLowerCase();
-      if (!allowedExt.includes(ext)) {
-        updateStatus('Unsupported file type. Use PDF, DOC, DOCX, or TXT.', true);
-        return;
-      }
-      if (!jdText) {
-        updateStatus('Paste a job description to assess match.', true);
-        return;
-      }
-
-      if (ext === 'doc' || ext === 'docx') {
-        updateStatus('⚠️ DOC/DOCX cannot be parsed in-browser. Convert to PDF for accurate results.', true);
-        const ats   = computeAtsScore(file, '');
-        const match = computeMatchScore('', jdText);
-        renderScores(ats, match);
-        renderFindings(ats, match);
-        return;
-      }
-
-      analyzeBtn.disabled     = true;
-      analyzeBtn.textContent  = 'Analyzing...';
-      updateStatus(`Reading ${sanitizeFilename(file.name)}...`);
-
-      try {
-        const resumeText = await extractText(file);
-
-        updateStatus(`Scoring ${sanitizeFilename(file.name)}...`);
-        const ats   = computeAtsScore(file, resumeText);
-        const match = computeMatchScore(resumeText, jdText);
-
-        renderScores(ats, match);
-        renderFindings(ats, match);
-
-        if (resumeText.length < 50) {
-          updateStatus('⚠️ Very little text extracted. If this is a scanned PDF, text cannot be read.', true);
-        } else {
-          updateStatus(`✓ Analysis complete — ${resumeText.trim().split(/\s+/).length} words extracted.`);
-        }
-      } catch (err) {
-        console.error(err);
-        updateStatus('Something went wrong reading the file. Try a different format.', true);
-      }
-
-      analyzeBtn.disabled    = false;
-      analyzeBtn.textContent = 'Analyze resume';
-    });
-
-    // ── File selection feedback ───────────────────────────────────────────────
-    resumeInput.addEventListener('change', () => {
-      const file = resumeInput.files[0] || null;
-      if (file) {
-        const ext = (file.name.split('.').pop() || '').toLowerCase();
-        if (ext === 'doc' || ext === 'docx') {
-          updateStatus(`⚠️ ${sanitizeFilename(file.name)} selected — DOC/DOCX cannot be parsed. Convert to PDF.`, true);
-        } else {
-          updateStatus(`Selected: ${sanitizeFilename(file.name)} (${Math.round(file.size / 1024)} KB)`);
-        }
-      } else {
-        updateStatus('No file selected.');
-      }
-    });
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.0/dist/flowbite.min.js"></script>
 </body>
 </html>

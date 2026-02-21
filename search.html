@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search — HirePanel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-brand">
+    <span class="nbname">HirePanel</span>
+    <span class="nbbadge">AI Beta</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html"  class="nav-link">Home</a></li>
+    <li><a href="resume.html" class="nav-link">Resume Checker</a></li>
+    <li><a href="jobs.html"   class="nav-link">Jobs</a></li>
+    <li><a href="search.html" class="nav-link active">Search</a></li>
+  </ul>
+  <a href="jobs.html" class="nav-cta">Post a Role</a>
+</nav>
+
+<div class="wrap">
+  <div class="shero">
+    <div class="eyebrow">03 — Search Engine</div>
+    <h1>Find your <em>exact</em><br>fit.</h1>
+    <p>AI-matched results across all open roles. Filter by skills, location, and salary.</p>
+    <div class="sbar-outer">
+      <input type="search" class="sinput" id="si" placeholder="Search roles, skills, companies…" oninput="go()" autocomplete="off">
+      <button class="sbtn" onclick="go()">→</button>
+    </div>
+    <div class="qtags">
+      <span class="qtag" onclick="set('System Design')">System Design</span>
+      <span class="qtag" onclick="set('Machine Learning')">Machine Learning</span>
+      <span class="qtag" onclick="set('Remote')">Remote</span>
+      <span class="qtag" onclick="set('Senior')">Senior</span>
+      <span class="qtag" onclick="set('Kubernetes')">Kubernetes</span>
+      <span class="qtag" onclick="set('React')">React</span>
+      <span class="qtag" onclick="set('Python')">Python</span>
+      <span class="qtag" onclick="set('data')">Data Engineering</span>
+    </div>
+  </div>
+
+  <div class="refine">
+    <span class="rlabel">Refine:</span>
+    <select onchange="go()"><option>All Levels</option><option>Junior</option><option>Mid-level</option><option>Senior</option><option>Staff</option><option>Principal</option></select>
+    <select onchange="go()"><option>Any Location</option><option>Remote</option><option>Hybrid</option><option>On-site</option></select>
+    <select onchange="go()"><option>Any Salary</option><option>$80k–$130k</option><option>$130k–$180k</option><option>$180k–$250k</option><option>$250k+</option></select>
+    <select onchange="go()"><option>All Categories</option><option>Engineering</option><option>Data & AI</option><option>Product</option><option>Design</option></select>
+    <div class="rcnt" ="margin-left:auto">Showing <strong id="cnt">6</strong> positions</div>
+  </div>
+
+  <div class="rmeta">
+    <div></div>
+    <div ="display:flex;gap:0.5rem;align-items:center">
+      <span class="rlabel">Sort:</span>
+      <select><option>Best Match</option><option>Most Recent</option><option>Highest Salary</option></select>
+    </div>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="maybeClose(event)">
+  <div class="modal" id="minner"></div>
+</div>
+
+<script>
+const JOBS = [
+  {id:1,title:"Staff Software Engineer",company:"Nexus Systems",ini:"NS",lc:"#1D3A6B",lb:"#D0D9EB",type:"remote",cat:"engineering",badge:"New",btag:"tag-teal",salary:"$210k – $260k",loc:"Remote (US)",posted:"2d ago",
+   skills:["System Design","Distributed Systems","Go","Kubernetes","gRPC"],
+   summary:"Lead architecture decisions for our core platform serving 50M+ concurrent users. You'll drive technical strategy for infrastructure, mentor a team of senior engineers, and own reliability initiatives across the stack.",
+   resp:["Architect and implement distributed systems at 50M+ user scale","Lead technical design reviews and the RFC process","Mentor a cross-functional team of 6 senior engineers","Define and execute the infrastructure technical roadmap","Partner with product and security on cross-cutting concerns"],
+   req:["8+ years backend/infrastructure engineering experience","Deep understanding of distributed systems and consensus algorithms","Strong Go or Rust proficiency with production-grade code","Kubernetes at scale — cluster management, autoscaling, networking","Proven track record of technical leadership and mentorship"],
+   panel:{verdict:"conditional",resumeAgent:"Validates timeline depth, leadership scope, and architecture ownership evidence",interviewFocus:"System design depth, failure mode reasoning, incident ownership, tradeoff articulation",gapRisk:"Leadership claims vs individual contributor interview patterns",note:"High-signal role. Resume inflation common at Staff level — verify leadership scope with references."}},
+  {id:2,title:"ML Engineer — Foundation Models",company:"Luminary AI",ini:"LA",lc:"#1D6B5A",lb:"#C8E8E2",type:"hybrid",cat:"data",badge:"Hot",btag:"tag-rust",salary:"$180k – $230k",loc:"San Francisco + Remote",posted:"1d ago",
+   skills:["PyTorch","LLMs","RLHF","Distributed Training","Python"],
+   summary:"Join the core team building next-generation foundation models. You'll design training pipelines, build evaluation harnesses, and work on alignment techniques at the frontier of AI research and engineering.",
+   resp:["Design and run large-scale training experiments on multi-GPU clusters","Build RLHF and DPO pipelines and evaluation frameworks","Collaborate with research team on novel architecture experiments","Optimize distributed training efficiency and throughput","Contribute to safety evaluation and alignment research"],
+   req:["Strong Python and PyTorch with production ML engineering experience","Experience training or fine-tuning large language models","Knowledge of RLHF, DPO, or related alignment techniques","Familiarity with GPU cluster management and distributed training frameworks","ML research background or publications a strong plus"],
+   panel:{verdict:"hire",resumeAgent:"Checks training scale, GPU hours, model size, publication record",interviewFocus:"ML fundamentals depth — backprop, optimization, architecture tradeoffs — not just API usage",gapRisk:"Research-level claims vs engineering execution capability",note:"Ask candidates to explain a training failure they debugged. Shallow answers reveal surface-level familiarity."}},
+  {id:3,title:"Senior Product Designer",company:"Orbit Studio",ini:"OS",lc:"#5A3B8A",lb:"#E2D5F5",type:"remote",cat:"design",badge:null,btag:null,salary:"$140k – $175k",loc:"Remote (Global)",posted:"3d ago",
+   skills:["Figma","Design Systems","User Research","Prototyping","A/B Testing"],
+   summary:"Shape the experience of a product used by 5M designers worldwide. You'll own end-to-end design for core features, evolve our design system, and influence product direction through research-grounded decisions.",
+   resp:["Lead design for complex, high-impact product features end-to-end","Own and evolve the company design system across platforms","Plan and execute qualitative and quantitative user research","Run design critiques and build a strong feedback culture","Present and defend design decisions to executive stakeholders"],
+   req:["5+ years product design experience at high-growth companies","Expert Figma proficiency with complex component libraries","Experience building and scaling design systems","Strong portfolio demonstrating complex, data-informed product work","Proven ability to plan and run user research studies"],
+   panel:{verdict:"hire",resumeAgent:"Evaluates portfolio depth, system-level thinking, and research rigor — not just visual craft",interviewFocus:"Design decision frameworks, tradeoff reasoning under constraints, user empathy depth",gapRisk:"Visual execution excellence masking weak systems or research capability",note:"Request a portfolio walkthrough where candidate explains what they'd do differently in hindsight."}},
+  {id:4,title:"Principal Data Engineer",company:"Datastride",ini:"DS",lc:"#7A3B20",lb:"#F0DACD",type:"onsite",cat:"data",badge:null,btag:null,salary:"$190k – $245k",loc:"New York, NY",posted:"5d ago",
+   skills:["Apache Spark","dbt","Snowflake","Airflow","Kafka"],
+   summary:"Architect the data infrastructure powering decisions for Fortune 500 clients. You'll design lakehouse patterns, lead a team of 8 data engineers, and own the technical vision for our data platform.",
+   resp:["Architect enterprise data lakehouse solutions for client engagements","Lead technical direction and growth of the data platform team","Design real-time streaming and large-scale batch processing systems","Establish data quality, governance, and observability standards","Own client-facing technical architecture discussions and reviews"],
+   req:["8+ years data engineering with demonstrable impact at scale","Expert Spark and Snowflake with tuning and optimization experience","Strong dbt and Airflow in production environments","Experience leading and growing engineering teams","Excellent client-facing communication and executive presence"],
+   panel:{verdict:"nohire",resumeAgent:"Validates pipeline throughput claims, technology breadth, and client impact ownership",interviewFocus:"Architecture tradeoffs, data modeling depth, team conflict resolution, client dynamics",gapRisk:"Scale claims (TB/PB processed) unverified — candidates often inherit without owning",note:"Ask for specific throughput numbers and what they personally designed vs inherited. Vague answers disqualify."}},
+  {id:5,title:"Product Manager — AI Features",company:"Loopline",ini:"LL",lc:"#1D4D72",lb:"#C8DDE8",type:"hybrid",cat:"product",badge:"New",btag:"tag-teal",salary:"$155k – $195k",loc:"Austin + Remote",posted:"1d ago",
+   skills:["AI/ML Strategy","Product Roadmapping","SQL","A/B Testing","Stakeholder Mgmt"],
+   summary:"Define and ship AI-powered features for our B2B SaaS platform used by 3,000+ enterprise clients. You'll work at the intersection of ML capability and real user needs, driving measurable adoption and retention.",
+   resp:["Own and evolve the AI feature roadmap for the core product suite","Collaborate with ML engineers to assess feasibility and define evaluation metrics","Define success metrics, design experiments, and iterate based on results","Conduct user interviews, market research, and competitive analysis","Communicate product vision and progress to executive and client stakeholders"],
+   req:["4+ years product management at B2B SaaS companies","Track record shipping AI/ML-powered features in production","Strong data fluency — SQL comfort, experiment design, metrics ownership","Technical background in CS, engineering, or data science preferred","Experience with enterprise client relationships and sales cycles"],
+   panel:{verdict:"hire",resumeAgent:"Checks AI feature shipping record, direct metrics ownership, cross-functional leadership scope",interviewFocus:"Product thinking depth, AI literacy (real vs buzzword), prioritization frameworks under constraint",gapRisk:"AI understanding depth vs surface-level familiarity — many PMs claim AI exp without engineering substance",note:"Ask candidate to explain a specific AI feature decision including what they deprioritized and why."}},
+  {id:6,title:"Senior Frontend Engineer",company:"Clarity UI",ini:"CU",lc:"#1A5E3A",lb:"#C8E8D5",type:"remote",cat:"engineering",badge:null,btag:null,salary:"$155k – $200k",loc:"Remote (EU / US)",posted:"4d ago",
+   skills:["React","TypeScript","Web Performance","Design Systems","Accessibility"],
+   summary:"Build the component library used by 200k+ developers worldwide. You care deeply about performance budgets, accessibility, and developer experience — and you can articulate exactly why in a code review.",
+   resp:["Build and maintain a production React component library at scale","Drive web performance initiatives with measurable Core Web Vitals improvements","Establish frontend architecture standards and patterns across the org","Collaborate with design to implement pixel-perfect, accessible components","Write comprehensive documentation, API references, and usage examples"],
+   req:["5+ years React and TypeScript in production environments","Deep understanding of browser rendering, JS engine, and performance debugging","Experience building or contributing to design systems","Strong WCAG accessibility knowledge and implementation practice","Open source contributions or technical writing a significant plus"],
+   panel:{verdict:"hire",resumeAgent:"Evaluates measurable performance wins, open source footprint, component architecture decisions",interviewFocus:"React internals, accessibility implementation, performance profiling, API design thinking",gapRisk:"Feature-level React work masking lack of systems-level frontend thinking",note:"Show a real component PR to review. How candidates read others' code reveals more than their portfolio."}}
+];
+
+const TTYPE = {remote:['tag-teal','Remote'],hybrid:['tag-gold','Hybrid'],onsite:['tag-ink','On-site']};
+const VMAP = {hire:{cls:'cc-hire',label:'✓ Recommended Hire'},conditional:{cls:'cc-cond',label:'⚡ Conditional Hire'},nohire:{cls:'cc-no',label:'✗ No Hire'}};
+const PCT = [94,88,81,76,69,62];
+
+function set(t){ document.getElementById('si').value = t; go(); }
+
+function go(){
+  const q = (document.getElementById('si').value||'').toLowerCase().trim();
+  const list = q ? JOBS.filter(j=>
+    j.title.toLowerCase().includes(q)||
+    j.company.toLowerCase().includes(q)||
+    j.type.toLowerCase().includes(q)||
+    j.cat.toLowerCase().includes(q)||
+    j.skills.some(s=>s.toLowerCase().includes(q))
+  ) : JOBS;
+  document.getElementById('cnt').textContent = list.length;
+  if(!list.length){
+    document.getElementById('results').innerHTML = `<div class="nores"><span>🔍</span>No roles match "<strong>${q}</strong>".<br>Try different keywords or clear the search.</div>`;
+    return;
+  }
+  document.getElementById('results').innerHTML = list.map((j,i)=>{
+    const [tc,tl] = TTYPE[j.type];
+    const pct = PCT[i] ?? Math.floor(55+Math.random()*35);
+    return `<div class="rrow" onclick="openJob(${j.id})">
+      <div class="rlogo" ="background:${j.lb};color:${j.lc}">${j.ini}</div>
+      <div>
+        <div class="rtitle">${j.title}</div>
+        <div class="rco">${j.company} · ${j.loc}</div>
+        <div class="rtags">
+          <span class="tag ${tc}">${tl}</span>
+          ${j.skills.slice(0,3).map(s=>`<span class="chip">${s}</span>`).join('')}
+        </div>
+      </div>
+      <div class="rright">
+        <div class="mlabel">AI Match</div>
+        <div class="mpct">${pct}<span ="font-size:1rem;color:var(--ink-faint)">%</span></div>
+        <div class="rsal">${j.salary}</div>
+        <div class="rdate">${j.posted}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openJob(id){
+  const j = JOBS.find(x=>x.id===id);
+  const [tc,tl] = TTYPE[j.type];
+  const v = VMAP[j.panel.verdict];
+  document.getElementById('minner').innerHTML = `
+    <div class="mtop">
+      <div>
+        <div ="display:flex;align-items:center;gap:1rem;margin-bottom:0.85rem">
+          <div class="rlogo" ="background:${j.lb};color:${j.lc};width:48px;height:48px;border-radius:10px;font-size:1.1rem;flex-shrink:0">${j.ini}</div>
+          <div>
+            <div ="font-family:'IBM Plex Mono',monospace;font-size:0.63rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.18rem">${j.company}</div>
+            <h2 ="font-family:'Playfair Display',serif;font-weight:900;font-size:1.5rem;letter-spacing:-0.02em">${j.title}</h2>
+          </div>
+        </div>
+        <div ="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">
+          <span class="tag ${tc}">${tl}</span>
+          <span ="font-family:'IBM Plex Mono',monospace;font-size:0.67rem;color:var(--ink-faint)">📍 ${j.loc}</span>
+          <span ="font-family:'Playfair Display',serif;font-weight:700;font-size:1rem">${j.salary}</span>
+          <span ="font-family:'IBM Plex Mono',monospace;font-size:0.63rem;color:var(--ink-faint)">Posted ${j.posted}</span>
+        </div>
+      </div>
+      <button class="mclose" onclick="closeModal()">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="msec"><div class="mstitle">Role Overview</div><p>${j.summary}</p></div>
+      <div class="msec"><div class="mstitle">Responsibilities</div><ul>${j.resp.map(r=>`<li>${r}</li>`).join('')}</ul></div>
+      <div class="msec"><div class="mstitle">Requirements</div><div class="req2">${j.req.map(r=>`<div class="req-row"><span ="color:var(--rust);flex-shrink:0">→</span>${r}</div>`).join('')}</div></div>
+      <div class="msec"><div class="mstitle">Required Skills</div><div ="display:flex;flex-wrap:wrap;gap:0.4rem">${j.skills.map(s=>`<span class="chip" ="font-size:0.7rem;padding:0.28rem 0.65rem">${s}</span>`).join('')}</div></div>
+      <div class="msec">
+        <div class="mstitle">AI Panel Evaluation Criteria</div>
+        <div class="pcbox">
+          <div class="pcbox-t">// What the autonomous panel examines for this role</div>
+          <div class="pc-chips"><span class="pc-chip ${v.cls}">${v.label}</span><span ="font-family:'IBM Plex Mono',monospace;font-size:0.63rem;color:rgba(255,255,255,0.3);align-self:center">Sample outcome</span></div>
+          <div class="pcgrid">
+            <div><div class="pcgl">Resume Agent Focus</div><div class="pct">${j.panel.resumeAgent}</div></div>
+            <div><div class="pcgl">Technical Interrogator</div><div class="pct">${j.panel.interviewFocus}</div></div>
+            <div><div class="pcgl">Primary Gap Risk</div><div class="pct" ="color:#F4957F">${j.panel.gapRisk}</div></div>
+            <div><div class="pcgl">Panel Note</div><div class="pct" ="color:rgba(255,255,255,0.4);font-:italic">${j.panel.note}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <a href="resume.html" class="btn btn-dark">Evaluate a Candidate →</a>
+      <button class="btn btn-out" onclick="closeModal()">Close</button>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeModal(){ document.getElementById('overlay').classList.remove('open'); }
+function maybeClose(e){ if(e.target===document.getElementById('overlay')) closeModal(); }
+
+go();
+</script>
+</body>
+</html>
