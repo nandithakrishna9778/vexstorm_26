@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATS-Friendly Resume Checker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/flowbite@4.0.0/dist/flowbite.min.css" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50:'#eef2ff',100:'#e0e7ff',200:'#c7d2fe',300:'#a5b4fc',400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca',800:'#3730a3',900:'#312e81',950:'#1e1b4b' },
+            secondary: { 50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',400:'#34d399',500:'#10b981',600:'#059669',700:'#047857',800:'#065f46',900:'#064e3b',950:'#022c22' }
+          },
+          fontFamily: {
+            heading: ['Plus Jakarta Sans','sans-serif'],
+            body: ['Inter','sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gradient-to-b from-primary-50 via-white to-secondary-50 text-gray-900 font-body">
+  <header class="bg-white/90 backdrop-blur border-b border-gray-200 sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto flex items-center justify-between px-6 lg:px-8 py-4">
+      <div class="flex items-center space-x-3">
+        <div class="h-10 w-10 rounded-xl bg-primary-600 text-white flex items-center justify-center shadow-lg">ATS</div>
+        <div>
+          <p class="text-lg font-semibold font-heading text-gray-900">ATS Resume Fit</p>
+          <p class="text-sm text-gray-500">Check ATS-friendliness & match in minutes</p>
+        </div>
+      </div>
+      <a href="#analyze" class="hidden sm:inline-flex items-center px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 shadow-md transition-all">Analyze now</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700 text-white">
+      <div class="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.15),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.18),transparent_30%)]"></div>
+      <div class="relative max-w-screen-xl mx-auto px-6 lg:px-8 py-20 lg:py-28 flex flex-col lg:flex-row items-center gap-12">
+        <div class="lg:w-1/2 space-y-6">
+          <div class="inline-flex items-center space-x-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 text-sm shadow-lg">
+            <span class="h-2 w-2 rounded-full bg-secondary-400 animate-pulse"></span>
+            <span>Upload PDF/DOC · Instant ATS check</span>
+          </div>
+          <h1 class="text-4xl lg:text-6xl font-heading font-bold leading-tight">Make your resume ATS-friendly and aligned to the job.</h1>
+          <p class="text-lg text-primary-100 max-w-2xl">Upload your resume, paste the job description, and get a quick read on ATS readiness plus role match. No accounts required.</p>
+          <div class="flex flex-wrap gap-4">
+            <a href="#analyze" class="inline-flex items-center px-6 py-3 rounded-lg bg-white text-primary-800 font-semibold shadow-lg hover:shadow-xl transition-all">Start free analysis</a>
+            <span class="inline-flex items-center text-sm text-primary-100">Takes under 30 seconds</span>
+          </div>
+          <div class="grid grid-cols-2 gap-4 text-left">
+            <div class="bg-white/10 border border-white/10 rounded-xl p-4 shadow-lg">
+              <p class="text-sm text-primary-100">Supported</p>
+              <p class="text-xl font-semibold">PDF & DOC</p>
+            </div>
+            <div class="bg-white/10 border border-white/10 rounded-xl p-4 shadow-lg">
+              <p class="text-sm text-primary-100">Checks</p>
+              <p class="text-xl font-semibold">ATS & Job Match</p>
+            </div>
+          </div>
+        </div>
+        <div class="lg:w-1/2">
+          <div class="bg-white text-gray-900 rounded-2xl shadow-2xl p-6 lg:p-8 space-y-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-500">Quick view</p>
+                <p class="text-xl font-semibold">ATS snapshot</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-sm bg-primary-100 text-primary-700">Live demo</span>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="p-4 rounded-xl border border-gray-200 shadow-sm">
+                <p class="text-sm text-gray-500">ATS-friendliness</p>
+                <p class="text-3xl font-bold text-primary-700" id="heroAtsScore">--</p>
+                <p class="text-sm text-gray-500" id="heroAtsLabel">Awaiting upload</p>
+              </div>
+              <div class="p-4 rounded-xl border border-gray-200 shadow-sm">
+                <p class="text-sm text-gray-500">Job match</p>
+                <p class="text-3xl font-bold text-secondary-600" id="heroMatchScore">--</p>
+                <p class="text-sm text-gray-500" id="heroMatchLabel">Awaiting JD</p>
+              </div>
+            </div>
+            <ul class="space-y-3 text-sm text-gray-700" id="heroInsights">
+              <li class="flex items-start space-x-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary-500"></span><span>Upload your resume to see ATS checks on headings, layout, and parsability.</span></li>
+              <li class="flex items-start space-x-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary-500"></span><span>Paste the job description to calculate keyword overlap.</span></li>
+            </ul>
+            <a href="#analyze" class="inline-flex items-center justify-center w-full px-4 py-3 rounded-lg bg-primary-600 text-white font-semibold hover:bg-primary-700 shadow-md transition-all">Analyze my resume</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="analyze" class="py-16 lg:py-24">
+      <div class="max-w-screen-xl mx-auto px-6 lg:px-8 grid lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-6">
+          <div class="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 lg:p-8">
+            <div class="flex items-start justify-between mb-6">
+              <div>
+                <p class="text-sm text-gray-500">Upload & Paste</p>
+                <h2 class="text-2xl font-heading font-bold text-gray-900">Resume & Job Description</h2>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-primary-100 text-primary-700 text-sm">Step 1</span>
+            </div>
+            <div class="space-y-4">
+              <label class="block">
+                <span class="text-sm font-medium text-gray-700">Resume file (PDF or DOC)</span>
+                <input id="resumeInput" type="file" accept=".pdf,.doc,.docx,.txt" class="mt-2 block w-full text-sm text-gray-700 border border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent p-3" />
+                <p class="text-xs text-gray-500 mt-2">We recommend clean layouts without tables or graphics-heavy sections.</p>
+              </label>
+              <label class="block">
+                <span class="text-sm font-medium text-gray-700">Job description</span>
+                <textarea id="jdInput" rows="6" class="mt-2 block w-full rounded-lg border border-gray-300 bg-white text-gray-900 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent p-3" placeholder="Paste the role overview, responsibilities, and requirements"></textarea>
+              </label>
+              <div class="flex flex-wrap items-center gap-4">
+                <button id="analyzeBtn" class="inline-flex items-center px-6 py-3 rounded-lg bg-primary-600 text-white font-semibold shadow-lg hover:bg-primary-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed">Analyze resume</button>
+                <p id="statusText" class="text-sm text-gray-500">No file selected yet.</p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 lg:p-8">
+            <div class="flex items-start justify-between mb-6">
+              <div>
+                <p class="text-sm text-gray-500">Results</p>
+                <h2 class="text-2xl font-heading font-bold text-gray-900">ATS-friendliness & Match</h2>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-secondary-100 text-secondary-700 text-sm">Step 2</span>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4 mb-6">
+              <div class="p-4 rounded-xl border border-gray-200 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-sm text-gray-500">ATS-friendliness</p>
+                  <span id="atsBadge" class="px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">Pending</span>
+                </div>
+                <p class="text-3xl font-bold text-primary-700" id="atsScore">--</p>
+                <p class="text-sm text-gray-600" id="atsSummary">Upload a resume to check parsing readiness.</p>
+              </div>
+              <div class="p-4 rounded-xl border border-gray-200 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-sm text-gray-500">Job match</p>
+                  <span id="matchBadge" class="px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">Pending</span>
+                </div>
+                <p class="text-3xl font-bold text-secondary-600" id="matchScore">--</p>
+                <p class="text-sm text-gray-600" id="matchSummary">Paste a job description to estimate overlap.</p>
+              </div>
+            </div>
+            <div class="grid lg:grid-cols-3 gap-4">
+              <div class="lg:col-span-2 bg-gradient-to-r from-primary-50 to-white border border-primary-100 rounded-xl p-4 shadow-sm">
+                <p class="text-sm font-semibold text-primary-800 mb-2">Key findings</p>
+                <ul id="findingsList" class="space-y-2 text-sm text-gray-700 list-disc list-inside">
+                  <li>Awaiting analysis.</li>
+                </ul>
+              </div>
+              <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
+                <p class="text-sm font-semibold text-gray-800 mb-2">Quick tips</p>
+                <ul class="space-y-2 text-sm text-gray-700 list-disc list-inside">
+                  <li>Use standard section headings.</li>
+                  <li>Avoid images, tables, and columns.</li>
+                  <li>Match role keywords naturally.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 lg:p-8 space-y-6">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Why it matters</p>
+              <h3 class="text-xl font-heading font-bold">Improve your first pass</h3>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-primary-100 text-primary-700 text-sm">Guide</span>
+          </div>
+          <div class="space-y-4 text-sm text-gray-700">
+            <p><span class="font-semibold">ATS-friendliness</span> looks at layout simplicity, file type, and parsability signals.</p>
+            <p><span class="font-semibold">Match score</span> measures keyword overlap between your resume text and the job description.</p>
+            <p class="text-primary-700 font-semibold">Tip: keep the resume 1-2 pages, use consistent headings, and mirror the job's language.</p>
+          </div>
+          <div class="bg-gradient-to-br from-secondary-50 to-white border border-secondary-200 rounded-xl p-4 shadow-sm">
+            <p class="text-sm font-semibold text-secondary-700 mb-2">Supported formats</p>
+            <p class="text-sm text-gray-700">PDF, DOC, DOCX, and TXT. Ensure text is selectable (not scanned images).</p>
+          </div>
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
+            <p class="text-sm font-semibold text-gray-800 mb-2">Need better matches?</p>
+            <p class="text-sm text-gray-700">Adjust keywords to reflect responsibilities and requirements in the JD.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-gray-900 text-white py-10">
+    <div class="max-w-screen-xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <p class="font-heading text-lg font-semibold">ATS Resume Fit</p>
+        <p class="text-sm text-gray-300">Upload · Check ATS · Align to the job</p>
+      </div>
+      <div class="flex items-center space-x-4 text-sm text-gray-300">
+        <span>PDF/DOC ready</span>
+        <span class="h-1 w-1 rounded-full bg-gray-500"></span>
+        <span>Instant feedback</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
+  <script>
+    Parse.initialize('dBN908lFPixDcM0oQEpdTgkti0V9SL3QkzcS8YNA', '7GqXr5yuyeHSq6SHma7BDirrS1BipsbsgGQixbNk');
+    Parse.serverURL = 'https://parseapi.back4app.com';
+  </script>
+  <script>
+    const resumeInput = document.getElementById('resumeInput');
+    const jdInput = document.getElementById('jdInput');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const statusText = document.getElementById('statusText');
+    const atsScoreEl = document.getElementById('atsScore');
+    const matchScoreEl = document.getElementById('matchScore');
+    const atsSummaryEl = document.getElementById('atsSummary');
+    const matchSummaryEl = document.getElementById('matchSummary');
+    const findingsList = document.getElementById('findingsList');
+    const atsBadge = document.getElementById('atsBadge');
+    const matchBadge = document.getElementById('matchBadge');
+    const heroAtsScore = document.getElementById('heroAtsScore');
+    const heroMatchScore = document.getElementById('heroMatchScore');
+    const heroAtsLabel = document.getElementById('heroAtsLabel');
+    const heroMatchLabel = document.getElementById('heroMatchLabel');
+
+    let lastFile = null;
+
+    const allowedExt = ['pdf', 'doc', 'docx', 'txt'];
+
+    function sanitizeFilename(name) {
+      return name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    }
+
+    function updateStatus(message, isError = false) {
+      statusText.textContent = message;
+      statusText.className = `text-sm ${isError ? 'text-red-600' : 'text-gray-500'}`;
+    }
+
+    function badge(el, text, color) {
+      el.textContent = text;
+      const colors = {
+        success: 'bg-secondary-100 text-secondary-800',
+        warning: 'bg-amber-100 text-amber-800',
+        danger: 'bg-red-100 text-red-800',
+        neutral: 'bg-gray-100 text-gray-700'
+      };
+      el.className = `px-3 py-1 rounded-full text-xs ${colors[color] || colors.neutral}`;
+    }
+
+    function computeAtsScore(file, text) {
+      let score = 72;
+      const issues = [];
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      if (!allowedExt.includes(ext)) {
+        issues.push('Use PDF, DOC, DOCX, or TXT for reliable parsing.');
+        score -= 20;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        issues.push('File is large; compress or simplify formatting.');
+        score -= 10;
+      }
+      if (/(table|columns?)/i.test(text)) {
+        issues.push('Tables/columns detected; ATS may misread content.');
+        score -= 10;
+      }
+      if (!/(experience|education|skills)/i.test(text)) {
+        issues.push('Add clear headings: Experience, Education, Skills.');
+        score -= 10;
+      }
+      if (/•||/.test(text) === false) {
+        issues.push('Use simple bullets (- or •) and consistent spacing.');
+        score -= 5;
+      }
+      score = Math.max(20, Math.min(99, score));
+      const label = score >= 80 ? 'ATS-ready' : score >= 65 ? 'Needs minor tweaks' : 'At risk';
+      return { score, label, issues };
+    }
+
+    function computeMatchScore(resumeText, jdText) {
+      const clean = (str) => str.toLowerCase().replace(/[^a-z0-9\s]/g, ' ');
+      const jdWords = clean(jdText).split(/\s+/).filter(w => w.length > 4);
+      const resumeWords = new Set(clean(resumeText).split(/\s+/).filter(w => w.length > 4));
+      const keywords = Array.from(new Set(jdWords)).slice(0, 40);
+      const matched = keywords.filter(k => resumeWords.has(k));
+      const ratio = keywords.length ? Math.round((matched.length / keywords.length) * 100) : 0;
+      const label = ratio >= 75 ? 'Strong match' : ratio >= 50 ? 'Moderate match' : 'Low match';
+      const missing = keywords.filter(k => !resumeWords.has(k)).slice(0, 5);
+      return { score: ratio, label, matched: matched.slice(0, 5), missing };
+    }
+
+    function renderFindings(ats, match) {
+      const list = [];
+      if (ats.issues.length) {
+        ats.issues.forEach(i => list.push({ type: 'warning', text: i }));
+      } else {
+        list.push({ type: 'success', text: 'Layout looks ATS-friendly.' });
+      }
+      if (match.missing.length) {
+        list.push({ type: 'info', text: `Consider adding keywords: ${match.missing.join(', ')}` });
+      } else if (match.score > 0) {
+        list.push({ type: 'success', text: 'Great overlap with the job requirements.' });
+      }
+      findingsList.innerHTML = '';
+      list.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'flex items-start space-x-2';
+        const dot = document.createElement('span');
+        dot.className = `mt-2 h-2 w-2 rounded-full ${item.type === 'success' ? 'bg-secondary-500' : item.type === 'warning' ? 'bg-amber-500' : 'bg-primary-500'}`;
+        const text = document.createElement('span');
+        text.textContent = item.text;
+        text.className = 'text-sm text-gray-700';
+        li.appendChild(dot);
+        li.appendChild(text);
+        findingsList.appendChild(li);
+      });
+    }
+
+    function renderScores(ats, match) {
+      atsScoreEl.textContent = `${ats.score}/100`;
+      matchScoreEl.textContent = `${match.score}%`;
+      atsSummaryEl.textContent = ats.label;
+      matchSummaryEl.textContent = match.label;
+      heroAtsScore.textContent = `${ats.score}`;
+      heroMatchScore.textContent = `${match.score}%`;
+      heroAtsLabel.textContent = ats.label;
+      heroMatchLabel.textContent = match.label;
+      badge(atsBadge, ats.label, ats.score >= 80 ? 'success' : ats.score >= 65 ? 'warning' : 'danger');
+      badge(matchBadge, match.label, match.score >= 75 ? 'success' : match.score >= 50 ? 'warning' : 'danger');
+    }
+
+    analyzeBtn.addEventListener('click', async () => {
+      const file = resumeInput.files[0];
+      const jdText = jdInput.value.trim();
+      if (!file) {
+        updateStatus('Please upload a resume file (PDF/DOC).', true);
+        return;
+      }
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      if (!allowedExt.includes(ext)) {
+        updateStatus('Unsupported file type. Use PDF, DOC, DOCX, or TXT.', true);
+        return;
+      }
+      if (!jdText) {
+        updateStatus('Paste a job description to assess match.', true);
+        return;
+      }
+      analyzeBtn.disabled = true;
+      analyzeBtn.textContent = 'Analyzing...';
+      updateStatus(`Analyzing ${sanitizeFilename(file.name)}...`);
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const resumeText = typeof reader.result === 'string' ? reader.result : '';
+        const ats = computeAtsScore(file, resumeText || file.name);
+        const match = computeMatchScore(resumeText || file.name, jdText);
+        renderScores(ats, match);
+        renderFindings(ats, match);
+        updateStatus('Analysis complete.');
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = 'Analyze resume';
+      };
+      reader.onerror = () => {
+        console.error(reader.error);
+        const ats = computeAtsScore(file, file.name);
+        const match = computeMatchScore(file.name, jdText);
+        renderScores(ats, match);
+        renderFindings(ats, match);
+        updateStatus('Could not read file contents; used filename only.', true);
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = 'Analyze resume';
+      };
+      reader.readAsText(file);
+    });
+
+    resumeInput.addEventListener('change', () => {
+      lastFile = resumeInput.files[0] || null;
+      if (lastFile) {
+        updateStatus(`Selected ${sanitizeFilename(lastFile.name)} (${Math.round(lastFile.size/1024)} KB).`);
+      } else {
+        updateStatus('No file selected.');
+      }
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.0/dist/flowbite.min.js"></script>
+</body>
+</html>
