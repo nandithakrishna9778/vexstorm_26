@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hiring OS | AI-Powered Recruitment</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
+<style>
+  :root {
+    /* Premium Metallic Gold */
+    --accent: #d4af37;
+    --accent-hover: #bda036;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f4ece4, #f1eadd, #f8f4e8, #faf2e9, #f5eedf);
+    background-attachment: fixed;
+    transition: background 0.8s ease, color 0.3s ease;
+    color: #212529; 
+    padding: 20px;
+  }
+
+  body.dark {
+    background: linear-gradient(135deg, #1f121f, #1c1620, #161221, #1a111d, #180e0f);
+    color: #ffffff; 
+  }
+
+  .toggle-btn {
+    position: absolute; top: 20px; right: 20px;
+    background: transparent; border: none; color: inherit; cursor: pointer; z-index: 10;
+  }
+
+  .login-box {
+    display: flex; flex-wrap: wrap; width: 100%; max-width: 1050px;
+    background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 24px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.05); transition: all 0.5s ease;
+  }
+
+  body.dark .login-box {
+    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+  }
+
+  /* 212, 175, 55 is the RGB for the Gold accent */
+  .signup-writings {
+    padding: 50px; display: flex; flex-direction: column; justify-content: center;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), transparent);
+    border-radius: 24px 24px 0 0;
+  }
+
+  @media (min-width: 768px) {
+    .signup-writings { border-radius: 24px 0 0 24px; }
+  }
+
+  .signup-writings h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 20px; line-height: 1.2;}
+  .signup-writings p { font-size: 1.1rem; opacity: 0.8; line-height: 1.6; }
+
+  .signup-box {
+    padding: 50px; display: flex; flex-direction: column; justify-content: center; position: relative;
+  }
+
+  .form-group { position: relative; margin-bottom: 20px; }
+  .form-group.open { z-index: 10; }
+  
+  .form-group .mso { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); opacity: 0.6; pointer-events: none; z-index: 2; }
+  .form-group .mso-arrow { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); opacity: 0.6; pointer-events: none; z-index: 2; transition: transform 0.3s ease; }
+  .form-group .toggle-password { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); opacity: 0.6; cursor: pointer; z-index: 5; transition: opacity 0.3s ease; }
+  .form-group .toggle-password:hover { opacity: 1; }
+
+  input::-ms-reveal, input::-ms-clear { display: none; }
+
+  input, .custom-select-trigger {
+    width: 100%; padding: 14px 45px; border-radius: 16px; border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.4); color: inherit; transition: all 0.3s ease; box-sizing: border-box; display: flex; align-items: center; font-size: 0.95rem;
+  }
+  .custom-select-trigger { cursor: pointer; user-select: none; }
+
+  body.dark input, body.dark .custom-select-trigger {
+    background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  input:focus, .custom-select-trigger.active {
+    outline: none; border-color: var(--accent); background: rgba(255, 255, 255, 0.7); box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+  }
+
+  body.dark input:focus, body.dark .custom-select-trigger.active { background: rgba(0, 0, 0, 0.5); }
+  .custom-select-container.open .mso-arrow { transform: translateY(-50%) rotate(180deg); }
+
+  .custom-options-container {
+    position: absolute; top: calc(100% + 10px); left: 0; width: 100%;
+    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; z-index: 100;
+  }
+
+  body.dark .custom-options-container { background: rgba(30, 25, 35, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); }
+  .custom-select-container.open .custom-options-container { opacity: 1; visibility: visible; transform: translateY(0); }
+
+  .scrollable-list { max-height: 220px; overflow-y: auto; }
+  .scrollable-list::-webkit-scrollbar { width: 6px; }
+  .scrollable-list::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.5); border-radius: 10px; }
+
+  .custom-option { padding: 12px 20px 12px 40px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(0,0,0,0.05); }
+  body.dark .custom-option { border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .custom-option:hover { background: rgba(212, 175, 55, 0.1); color: var(--accent); }
+  body.dark .custom-option:hover { background: rgba(212, 175, 55, 0.2); color: #ffffff; }
+
+  /* --- Buttons --- */
+  .action-btn {
+    background: var(--accent); 
+    color: #161221; /* Dark text for contrast against gold */
+    border: none; padding: 15px; border-radius: 16px; font-weight: 700; width: 100%; cursor: pointer; transition: background 0.3s, transform 0.1s; margin-top: 10px; font-size: 1.05rem; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  }
+  .action-btn:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4); }
+
+  .secondary-btn { background: rgba(0,0,0,0.05); color: inherit; box-shadow: none; margin-top: 10px; margin-bottom: 10px; }
+  body.dark .secondary-btn { background: rgba(255,255,255,0.05); color: #ffffff; }
+  .secondary-btn:hover { background: rgba(0,0,0,0.1); transform: translateY(0); }
+  body.dark .secondary-btn:hover { background: rgba(255,255,255,0.1); }
+
+  .form-switch-link { color: var(--accent); cursor: pointer; text-decoration: none; font-weight: 600; transition: color 0.2s;}
+  .form-switch-link:hover { text-decoration: underline; color: var(--accent-hover); }
+  .hidden { display: none !important; }
+
+  /* --- Resume Upload UI --- */
+  .upload-area {
+    border: 2px dashed rgba(212, 175, 55, 0.4); border-radius: 16px; padding: 30px; text-align: center;
+    background: rgba(212, 175, 55, 0.02); cursor: pointer; transition: all 0.3s ease;
+  }
+  .upload-area:hover { background: rgba(212, 175, 55, 0.1); border-color: var(--accent); }
+  
+  .file-preview-box {
+    background: rgba(0,0,0,0.04); border-radius: 16px; padding: 15px 20px; display: flex; align-items: center;
+    justify-content: space-between; border: 1px solid rgba(0,0,0,0.05); position: relative; overflow: hidden;
+  }
+  body.dark .file-preview-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+  
+  .file-info { display: flex; align-items: center; gap: 10px; z-index: 2; overflow: hidden; white-space: nowrap; }
+  .file-name { font-weight: 600; font-size: 0.95rem; text-overflow: ellipsis; overflow: hidden; }
+  .remove-file-btn { background: none; border: none; color: #ff4757; cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; transition: background 0.2s; }
+  .remove-file-btn:hover { background: rgba(255, 71, 87, 0.1); }
+
+  /* Animated Loading Bar */
+  .progress-bar-bg {
+    position: absolute; bottom: 0; left: 0; height: 4px; background: var(--accent); width: 0%; transition: width 0.8s ease-in-out; z-index: 1;
+  }
+
+  /* Extracted Badge class to clean up HTML */
+  .brand-badge {
+    display: inline-block; 
+    padding: 10px 15px; 
+    background: rgba(212, 175, 55, 0.1); 
+    border-radius: 30px; 
+    color: var(--accent); 
+    font-weight: 800; 
+    font-size: 0.85rem; 
+    letter-spacing: 1px; 
+    margin-bottom: 20px; 
+    border: 1px solid rgba(212, 175, 55, 0.2);
+  }
+</style>
+</head>
+<body class="dark">
+
+  <button class="toggle-btn" onclick="toggleDarkMode()">
+    <span class="material-symbols-outlined" id="theme-icon">wb_sunny</span>
+  </button>
+
+  <div class="login-box row mx-0">
+    <div class="signup-writings col-12 col-md-6">
+      <h1 id="hero-title">Welcome Back.</h1>
+      <p id="hero-desc">Sign in to access your AI-powered dashboard. Evaluate candidates seamlessly or prep for your next big interview.</p>
+    </div>
+
+    <div class="signup-box col-12 col-md-6">
+      <div id="step-indicator" class="hidden" style="text-align: center; margin-bottom: 15px; font-weight: 600; color: var(--accent); font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase;">Step 1 of 2</div>
+      
+      <h2 id="form-title" class="mb-4 text-center" style="font-weight: 700;">Sign In</h2>
+      
+      <form id="authForm" onsubmit="event.preventDefault(); submitForm();">
+        
+        <div id="step-1-container">
+          
+          <div class="form-group custom-select-container hidden" id="roleContainer">
+            <span class="material-symbols-outlined mso">work_outline</span>
+            <div class="custom-select-trigger"><span class="display-text">I am a Job Seeker</span></div>
+            <div class="custom-options-container">
+              <div class="custom-option" data-value="seeker">I am a Job Seeker</div>
+              <div class="custom-option" data-value="recruiter">I am a Company / Recruiter</div>
+            </div>
+            <span class="material-symbols-outlined mso-arrow">expand_more</span>
+            <input type="hidden" id="userRole" value="seeker">
+          </div>
+
+          <div id="personal-fields" class="hidden">
+            <div class="form-group">
+              <span class="material-symbols-outlined mso">person</span>
+              <input type="text" id="fullName" placeholder="Full Name">
+            </div>
+            <div class="form-group">
+              <span class="material-symbols-outlined mso">call</span>
+              <input type="tel" id="phone" placeholder="Phone Number (Optional)">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="material-symbols-outlined mso" id="ident-icon">email</span>
+            <input type="email" id="emailInput" placeholder="Email Address" required>
+          </div>
+          
+          <div class="form-group">
+            <span class="material-symbols-outlined mso">lock</span>
+            <input type="password" id="passwordInput" placeholder="Password" required>
+            <span class="material-symbols-outlined toggle-password" id="togglePasswordBtn">visibility</span>
+          </div>
+
+          <button type="button" class="action-btn hidden" id="next-btn" onclick="goToStep2()">Next &rarr;</button>
+          <button type="submit" class="action-btn" id="login-btn">Sign In</button>
+        </div>
+
+
+        <div id="step-2-container" class="hidden">
+          
+          <div id="seeker-fields">
+            <div class="form-group custom-select-container">
+              <span class="material-symbols-outlined mso">school</span>
+              <div class="custom-select-trigger"><span class="display-text" style="opacity: 0.7;">Current Status</span></div>
+              <div class="custom-options-container scrollable-list">
+                <div class="custom-option" data-value="Student">Student</div>
+                <div class="custom-option" data-value="Fresher">Fresher (0-1 Yrs)</div>
+                <div class="custom-option" data-value="Professional">Working Professional</div>
+              </div>
+              <span class="material-symbols-outlined mso-arrow">expand_more</span>
+              <input type="hidden" id="currentStatus" value="">
+            </div>
+
+            <div class="form-group">
+              <input type="file" id="resume" accept=".pdf,.doc,.docx" class="hidden">
+              
+              <div class="upload-area" id="upload-area" onclick="document.getElementById('resume').click()">
+                <span class="material-symbols-outlined" style="font-size: 32px; color: var(--accent); margin-bottom: 8px;">cloud_upload</span>
+                <p style="margin: 0; font-weight: 600;">Upload your Resume</p>
+                <small style="opacity: 0.6;">PDF, DOCX up to 5MB</small>
+              </div>
+
+              <div class="file-preview-box hidden" id="file-preview">
+                <div class="progress-bar-bg" id="progress-bar"></div>
+                <div class="file-info">
+                  <span class="material-symbols-outlined" style="color: var(--accent);">description</span>
+                  <span class="file-name" id="file-name-display">my_resume.pdf</span>
+                </div>
+                <button type="button" class="remove-file-btn" onclick="removeFile()" title="Remove File">
+                  <span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="recruiter-fields" class="hidden">
+            <div class="form-group">
+              <span class="material-symbols-outlined mso">apartment</span>
+              <input type="text" id="companyName" placeholder="Company Name">
+            </div>
+            <div class="form-group">
+              <span class="material-symbols-outlined mso">badge</span>
+              <input type="text" id="designation" placeholder="Your Designation (e.g., HR, Tech Lead)">
+            </div>
+          </div>
+
+          <button type="submit" class="action-btn" id="register-btn">Register & Finish</button>
+          <button type="button" class="action-btn secondary-btn" onclick="goToStep1()">&larr; Back to Step 1</button>
+        </div>
+
+      </form>
+      
+      <p class="text-center mt-4 mb-0" style="font-size: 0.95rem; opacity: 0.8;" id="bottom-switch-area">
+        <span id="switch-prompt">Don't have an account?</span> 
+        <a onclick="toggleFormType()" class="form-switch-link" id="switch-link">Create Account</a>
+      </p>
+    </div>
+  </div>
+
+<script>
+  let isSignupMode = false;
+
+  // --- Show/Hide Password Toggle Logic ---
+  const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+  const passwordInput = document.getElementById('passwordInput');
+
+  togglePasswordBtn.addEventListener('click', function () {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    this.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+  });
+
+  // --- Custom Dropdown Logic ---
+  document.querySelectorAll('.custom-select-container').forEach(container => {
+    const trigger = container.querySelector('.custom-select-trigger');
+    const options = container.querySelectorAll('.custom-option');
+    const hiddenInput = container.querySelector('input[type="hidden"]');
+    const displayText = container.querySelector('.display-text');
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.custom-select-container').forEach(c => {
+        if (c !== container) {
+          c.classList.remove('open');
+          c.querySelector('.custom-select-trigger').classList.remove('active');
+        }
+      });
+      container.classList.toggle('open');
+      trigger.classList.toggle('active');
+    });
+
+    options.forEach(option => {
+      option.addEventListener('click', (e) => {
+        e.stopPropagation();
+        displayText.textContent = option.textContent;
+        displayText.style.opacity = "1";
+        hiddenInput.value = option.getAttribute('data-value');
+        
+        container.classList.remove('open');
+        trigger.classList.remove('active');
+
+        if (hiddenInput.id === 'userRole') handleRoleChange();
+      });
+    });
+  });
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.custom-select-container').forEach(c => {
+      c.classList.remove('open');
+      c.querySelector('.custom-select-trigger').classList.remove('active');
+    });
+  });
+
+  // --- File Upload UI Logic ---
+  const resumeInput = document.getElementById('resume');
+  const uploadArea = document.getElementById('upload-area');
+  const filePreview = document.getElementById('file-preview');
+  const fileNameDisplay = document.getElementById('file-name-display');
+  const progressBar = document.getElementById('progress-bar');
+
+  resumeInput.addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+      // Hide dropzone, show preview box
+      uploadArea.classList.add('hidden');
+      filePreview.classList.remove('hidden');
+      
+      // Update Name
+      fileNameDisplay.textContent = e.target.files[0].name;
+
+      // Animate fake progress bar (0 to 100%)
+      progressBar.style.width = '0%';
+      setTimeout(() => {
+        progressBar.style.width = '100%';
+      }, 50);
+    }
+  });
+
+  function removeFile() {
+    resumeInput.value = ''; // Clear actual input
+    filePreview.classList.add('hidden'); // Hide preview
+    uploadArea.classList.remove('hidden'); // Show dropzone
+    progressBar.style.width = '0%'; // Reset bar
+  }
+
+  // --- Step & Role Logic ---
+  function handleRoleChange() {
+    const role = document.getElementById('userRole').value;
+    const seekerFields = document.getElementById('seeker-fields');
+    const recruiterFields = document.getElementById('recruiter-fields');
+
+    if (role === 'seeker') {
+      seekerFields.classList.remove('hidden');
+      recruiterFields.classList.add('hidden');
+    } else {
+      seekerFields.classList.add('hidden');
+      recruiterFields.classList.remove('hidden');
+    }
+  }
+
+  function goToStep2() {
+    // Basic validation before allowing next step
+    const name = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('emailInput').value.trim();
+    const pass = document.getElementById('passwordInput').value.trim();
+
+    if(!name || !email || !pass) {
+      alert("Please fill in your Name, Email, and Password before proceeding.");
+      return;
+    }
+
+    document.getElementById('step-1-container').classList.add('hidden');
+    document.getElementById('step-2-container').classList.remove('hidden');
+    document.getElementById('step-indicator').innerText = "Step 2 of 2";
+    document.getElementById('bottom-switch-area').classList.add('hidden'); // hide login link
+  }
+
+  function goToStep1() {
+    document.getElementById('step-2-container').classList.add('hidden');
+    document.getElementById('step-1-container').classList.remove('hidden');
+    document.getElementById('step-indicator').innerText = "Step 1 of 2";
+    document.getElementById('bottom-switch-area').classList.remove('hidden');
+  }
+
+  function toggleFormType() {
+    isSignupMode = !isSignupMode;
+    const roleContainer = document.getElementById('roleContainer');
+    const personalFields = document.getElementById('personal-fields');
+    const formTitle = document.getElementById('form-title');
+    const loginBtn = document.getElementById('login-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const stepIndicator = document.getElementById('step-indicator');
+    
+    // Always reset to step 1 when switching modes
+    goToStep1();
+
+    if (isSignupMode) {
+      // Switch to Sign Up (Step 1 mode)
+      roleContainer.classList.remove('hidden');
+      personalFields.classList.remove('hidden');
+      loginBtn.classList.add('hidden');
+      nextBtn.classList.remove('hidden');
+      stepIndicator.classList.remove('hidden');
+
+      formTitle.innerText = "Create Account";
+      document.getElementById('switch-prompt').innerText = "Already have an account?";
+      document.getElementById('switch-link').innerText = "Sign In";
+      document.getElementById('hero-title').innerText = "Join Hiring OS.";
+      document.getElementById('hero-desc').innerText = "Create your profile to start evaluating candidates or to find your next dream role.";
+      
+      handleRoleChange(); 
+    } else {
+      // Switch to Sign In
+      roleContainer.classList.add('hidden');
+      personalFields.classList.add('hidden');
+      loginBtn.classList.remove('hidden');
+      nextBtn.classList.add('hidden');
+      stepIndicator.classList.add('hidden');
+
+      formTitle.innerText = "Sign In";
+      document.getElementById('switch-prompt').innerText = "Don't have an account?";
+      document.getElementById('switch-link').innerText = "Create Account";
+      document.getElementById('hero-title').innerText = "Welcome Back.";
+      document.getElementById('hero-desc').innerText = "Sign in to access your AI-powered dashboard. Evaluate candidates seamlessly or prep for your next big interview.";
+    }
+  }
+
+  // --- Form Submission Logic ---
+  async function submitForm() {
+    const email = document.getElementById('emailInput').value.trim();
+    const password = document.getElementById('passwordInput').value.trim();
+
+    if (isSignupMode) {
+      // --- REGISTRATION LOGIC (Triggered from Step 2) ---
+      const role = document.getElementById('userRole').value;
+      const fullName = document.getElementById('fullName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+
+      const formData = new FormData();
+      formData.append('role', role);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('full_name', fullName);
+      formData.append('phone', phone);
+
+      if (role === 'seeker') {
+        const currentStatus = document.getElementById('currentStatus').value;
+        const resumeFile = document.getElementById('resume').files[0];
+        
+        if (!currentStatus) { alert("Please select your current status."); return; }
+        if (!resumeFile) { alert("Please upload your resume to continue."); return; }
+
+        formData.append('current_status', currentStatus);
+        formData.append('resume', resumeFile);
+      } else {
+        const companyName = document.getElementById('companyName').value.trim();
+        const designation = document.getElementById('designation').value.trim();
+        
+        if (!companyName || !designation) { alert("Please fill in your company details."); return; }
+        
+        formData.append('company_name', companyName);
+        formData.append('designation', designation);
+      }
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/auth/register', {
+          method: 'POST',
+          body: formData 
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          alert("Success! " + result.message);
+          toggleFormType(); 
+          document.getElementById('passwordInput').value = ''; 
+          removeFile(); // Reset file upload visually
+        } else {
+          alert("Registration Failed: " + result.error); 
+        }
+      } catch (error) {
+        alert("Server connection failed. Is MongoDB and Python running?");
+      }
+
+    } else {
+      // --- LOGIN LOGIC ---
+      const payload = { email: email, password: password };
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('hiringUser', JSON.stringify(result.user));
+          localStorage.setItem('hiringToken', result.token);
+
+          if (result.user.role === 'seeker') {
+             window.location.href = '/sad/seeker.html'; 
+          } else if (result.user.role === 'recruiter') {
+             window.location.href = '/sad/recruiter.html'; 
+          }
+        } else {
+          alert("Login Failed: " + result.error);
+        }
+      } catch (error) {
+        alert("Server connection failed. Is Python running?");
+      }
+    }
+  }
+
+  // --- Dark Mode / Light Mode Logic ---
+  document.addEventListener("DOMContentLoaded", () => {
+    const savedTheme = localStorage.getItem("theme");
+    const body = document.body;
+    const icon = document.getElementById("theme-icon");
+
+    if (savedTheme === "light") {
+      body.classList.remove("dark");
+      if(icon) icon.textContent = "dark_mode";
+    } else { 
+      body.classList.add("dark");
+      if(icon) icon.textContent = "wb_sunny";
+    }
+  });
+
+  function toggleDarkMode() {
+    const body = document.body;
+    const icon = document.getElementById("theme-icon");
+
+    if (body.classList.contains("dark")) {
+      body.classList.remove("dark");
+      if(icon) icon.textContent = "dark_mode";
+      localStorage.setItem("theme", "light");
+    } else {
+      body.classList.add("dark");
+      if(icon) icon.textContent = "wb_sunny";
+      localStorage.setItem("theme", "dark");
+    }
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

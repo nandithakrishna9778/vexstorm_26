@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Interview Room</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f4ece4, #f1eadd, #f8f4e8, #faf2e9, #f5eedf);
+            background-attachment: fixed;
+            transition: background 0.8s ease, color 0.3s ease;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #1f121f, #1c1620, #161221, #1a111d, #180e0f);
+            color: #ffffff;
+        }
+
+        #header {
+            padding: 20px;
+            text-align: center;
+            color: #212529;
+            transition: color 0.3s ease;
+        }
+
+        body.dark #header {
+            color: #ffffff;
+        }
+
+        #video-container {
+            width: 100vw;
+            height: 85vh;
+        }
+
+        .floating-btn {
+            position: fixed;
+            top: 20px;
+            z-index: 1000;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            color: #212529;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, color 0.3s ease;
+            padding: 10px;
+        }
+
+        .floating-btn .material-symbols-outlined {
+            font-size: 32px;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.15);
+        }
+
+        .back-btn {
+            left: 20px;
+        }
+
+        .toggle-btn {
+            right: 20px;
+        }
+
+        body.dark .floating-btn {
+            color: #ffffff;
+        }
+
+        #subtitles-container {
+            display: none;
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: 500;
+            max-width: 80%;
+            text-align: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="dark">
+    <button class="floating-btn back-btn" onclick="goBack()" title="Leave Meeting">
+        <span class="material-symbols-outlined">logout</span>
+    </button>
+
+    <button class="floating-btn toggle-btn" onclick="toggleDarkMode()" title="Toggle Theme">
+        <span class="material-symbols-outlined" id="theme-icon">wb_sunny</span>
+    </button>
+
+    <div id="header">
+        <h2>Live Interview Room</h2>
+    </div>
+
+    <div id="video-container"></div>
+
+    <div id="subtitles-container">
+        <div id="subtitles-text">Waiting for speaker...</div>
+    </div>
+
+    <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
+
+    <script>
+        window.onload = function () {
+            const storedUserId = localStorage.getItem("userId");
+            const storedUserName = localStorage.getItem("userName");
+
+            const userID = storedUserId ? storedUserId : (Math.floor(Math.random() * 10000) + "");
+            const userName = storedUserName ? storedUserName : "Guest_" + userID;
+
+            function getUrlParams(url) {
+                let urlStr = url.split('?')[1] || '';
+                return Object.fromEntries(new URLSearchParams(urlStr).entries());
+            }
+
+            const urlParams = getUrlParams(window.location.href);
+            const roomID = urlParams['roomID'] || (Math.floor(Math.random() * 10000) + "");
+
+            // True if Participant, False if Interviewer
+            const isParticipantLink = !!urlParams['roomID'];
+
+            // ZegoCloud Init
+            const appID = 767996820;
+            const serverSecret = "051753ef4d52dca77aa2f9bf2e0fec5c";
+            const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
+            const zp = ZegoUIKitPrebuilt.create(kitToken);
+
+            zp.joinRoom({
+                container: document.querySelector("#video-container"),
+                sharedLinks: [{
+                    name: 'Meeting Link',
+                    url: window.location.protocol + '//' + window.location.host + window.location.pathname + '?roomID=' + roomID,
+                }],
+                scenario: { mode: ZegoUIKitPrebuilt.VideoConference },
+                showMyCameraToggleButton: true,
+                showMyMicrophoneToggleButton: true,
+                showAudioVideoSettingsButton: true,
+                showScreenSharingButton: true,
+                showTextChat: true,
+                showUserList: true,
+                maxUsers: 2,
+                layout: "Auto",
+            });
+
+            // If this is the CANDIDATE (Room ID exists), start the built-in microphone transcription
+            if (isParticipantLink) {
+                startContinuousDictation();
+            }
+        };
+
+        // --- Pure Chrome STT Logic (No AssemblyAI) ---
+
+        function startContinuousDictation() {
+            // Update to localhost for local testing. 
+            // If testing remotely, use the new ngrok URL here (e.g., 'wss://YOUR_NGROK_ID.ngrok-free.dev')
+            const wsUrl = 'ws://localhost:8080';
+            const socket = new WebSocket(wsUrl);
+
+            socket.onopen = () => console.log("Connected to Python backend.");
+            socket.onerror = (error) => console.error("WebSocket error:", error);
+
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                console.warn("Browser does not support Speech API.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+
+            // 🔥 CHANGED TO TRUE: Send every guessed word instantly
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                let interimTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                // Log the running guess so the browser console still shows what it's hearing
+                if (interimTranscript.trim() !== '') {
+                    console.log("HEARD (interim):", interimTranscript);
+                }
+
+                // Beam the COMPLETED phrase to the backend terminal
+                if (finalTranscript.trim() !== '') {
+                    console.log("HEARD (final):", finalTranscript);
+                    if (socket.readyState === WebSocket.OPEN) {
+                        socket.send(JSON.stringify({
+                            type: 'transcription',
+                            text: finalTranscript.trim()
+                        }));
+                    }
+                }
+            };
+
+            // THE INFINITE LOOP: Instantly restart if Chrome tries to pause
+            recognition.onend = () => {
+                setTimeout(() => {
+                    try { recognition.start(); } catch (e) { }
+                }, 100);
+            };
+
+            recognition.start();
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark');
+            const themeIcon = document.getElementById('theme-icon');
+            themeIcon.textContent = document.body.classList.contains('dark') ? 'wb_sunny' : 'dark_mode';
+        }
+
+        function goBack() {
+            window.location.href = 'http://127.0.0.1:5504/sad/in-meet.html';
+        }
+    </script>
+</body>
+
+</html>
